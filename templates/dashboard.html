@@ -1,0 +1,4612 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Cofounder Dashboard</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Inter',sans-serif;
+    background:#08090b;
+    color:white;
+    height:100vh;
+    overflow:hidden;
+}
+
+.app{
+    display:block;
+    height:100vh;
+}
+
+.sidebar{
+    position:fixed;
+    left:0;
+    right:0;
+    bottom:0;
+    z-index:40;
+    display:flex;
+    align-items:center;
+    justify-content:space-around;
+    gap:6px;
+    border-top:1px solid rgba(255,255,255,0.08);
+    background:rgba(10,14,20,0.92);
+    backdrop-filter:blur(10px);
+    padding:8px 10px calc(8px + env(safe-area-inset-bottom));
+}
+
+.brand{
+    display:none;
+}
+
+.nav-item{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:3px;
+    min-width:58px;
+    padding:8px 8px;
+    border-radius:12px;
+    margin-bottom:0;
+    color:#a3b0c2;
+    font-size:11px;
+    font-weight:600;
+    transition:0.2s;
+    cursor:pointer;
+}
+
+.nav-item.active{
+    background:rgba(66,133,244,0.16);
+    color:white;
+    border:1px solid rgba(96,165,250,0.35);
+}
+
+.nav-item:hover{
+    background:rgba(255,255,255,0.07);
+    color:white;
+}
+
+.nav-item svg{
+    width:18px;
+    height:18px;
+}
+
+.main{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    height:100vh;
+    padding-bottom:76px;
+}
+
+.topbar{
+    min-height:78px;
+    border-bottom:1px solid rgba(255,255,255,0.05);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 34px;
+    background:rgba(10,12,15,0.78);
+}
+
+.title-block h1{
+    font-size:20px;
+    font-weight:700;
+    letter-spacing:-0.02em;
+}
+
+.title-block p{
+    color:#8f98a3;
+    font-size:13px;
+    margin-top:4px;
+}
+
+.status-pill{
+    color:#cbd3dc;
+    background:#11161c;
+    border:1px solid rgba(255,255,255,0.07);
+    border-radius:999px;
+    padding:8px 12px;
+    font-size:13px;
+    font-weight:600;
+}
+
+.chat-area{
+    flex:1;
+    overflow-y:auto;
+    padding:34px;
+    scroll-behavior:smooth;
+    background:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+    background-size:42px 42px;
+}
+
+.view{
+    display:none;
+    flex:1;
+    min-height:0;
+}
+
+.view.active{
+    display:flex;
+    flex-direction:column;
+}
+
+.goals-view{
+    overflow-y:auto;
+    padding:34px;
+    background:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+    background-size:42px 42px;
+}
+
+.goals-shell{
+    max-width:1100px;
+    width:100%;
+    margin:0 auto;
+}
+
+.goals-hero{
+    display:block;
+    margin-bottom:18px;
+}
+
+.goal-panel{
+    background:#11161c;
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:18px;
+    padding:20px;
+    box-shadow:0 18px 44px rgba(0,0,0,0.2);
+}
+
+.goal-panel h2{
+    font-size:18px;
+    letter-spacing:-0.02em;
+    margin-bottom:8px;
+}
+
+.goal-panel p{
+    color:#97a1ad;
+    line-height:1.55;
+    font-size:14px;
+}
+
+.mission-box{
+    margin-top:18px;
+    background:#0b0f14;
+    border:1px solid rgba(255,255,255,0.07);
+    border-radius:14px;
+    padding:16px;
+}
+
+.mission-label{
+    color:#8f98a3;
+    font-size:12px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    margin-bottom:8px;
+}
+
+.mission-text{
+    font-size:22px;
+    line-height:1.25;
+    letter-spacing:-0.03em;
+    font-weight:700;
+    cursor:pointer;
+}
+
+.goal-bubbles{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+    margin-top:16px;
+}
+
+.goal-bubble{
+    border-radius:18px;
+    padding:18px;
+    min-height:150px;
+    border:1px solid rgba(255,255,255,0.1);
+}
+
+.goal-bubble.weekly{
+    background:linear-gradient(135deg,#0e3a68,#1267b3);
+}
+
+.goal-bubble.monthly{
+    background:linear-gradient(135deg,#0d4a34,#11945f);
+}
+
+.goal-bubble span{
+    display:block;
+    font-size:12px;
+    font-weight:800;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:rgba(255,255,255,0.68);
+    margin-bottom:10px;
+}
+
+.goal-bubble strong{
+    display:block;
+    font-size:18px;
+    line-height:1.32;
+    letter-spacing:-0.02em;
+    cursor:pointer;
+}
+
+.inline-editor{
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:10px;
+}
+
+.inline-editor input{
+    width:100%;
+    min-width:0;
+    background:rgba(255,255,255,0.1);
+    border:1px solid rgba(255,255,255,0.18);
+    border-radius:12px;
+    color:white;
+    padding:11px 12px;
+    font-size:15px;
+    font-weight:700;
+}
+
+.mission-box .inline-editor input{
+    background:#11161c;
+}
+
+.goal-metric-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+    margin-top:18px;
+}
+
+.goal-metric{
+    background:#0b0f14;
+    border:1px solid rgba(255,255,255,0.07);
+    border-radius:14px;
+    padding:14px;
+}
+
+.goal-metric strong{
+    display:block;
+    font-size:18px;
+    margin-bottom:4px;
+}
+
+.goal-metric span{
+    color:#8f98a3;
+    font-size:12px;
+}
+
+.goal-grid{
+    display:block;
+}
+
+.goal-list{
+    display:grid;
+    gap:10px;
+    margin-top:14px;
+}
+
+.team-table{
+    display:grid;
+    gap:0;
+    margin-top:14px;
+    overflow:hidden;
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:16px;
+}
+
+.team-row{
+    display:grid;
+    grid-template-columns:1fr 1.4fr auto auto;
+    gap:12px;
+    align-items:center;
+    background:#0b0f14;
+    border-bottom:1px solid rgba(255,255,255,0.07);
+    padding:15px;
+}
+
+.team-row:last-child{
+    border-bottom:none;
+}
+
+.team-row.header{
+    background:#151b22;
+    color:#8f98a3;
+    font-size:12px;
+    font-weight:800;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+}
+
+.team-row input{
+    width:100%;
+    background:#11161c;
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:10px;
+    padding:10px;
+    color:white;
+    font-size:13px;
+}
+
+.team-actions{
+    display:flex;
+    gap:8px;
+}
+
+.mini-btn{
+    padding:9px 11px;
+    border-radius:10px;
+    font-size:12px;
+}
+
+.danger-btn{
+    background:#2a1517;
+    color:#ffd6da;
+    border:1px solid rgba(255,120,130,0.18);
+}
+
+.invite-note{
+    margin-top:10px;
+    color:#8f98a3;
+    font-size:13px;
+}
+
+.team-person strong,
+.team-task strong{
+    display:block;
+    font-size:14px;
+    margin-bottom:3px;
+}
+
+.team-person span,
+.team-task span{
+    color:#8f98a3;
+    font-size:12px;
+}
+
+.task-pill{
+    color:#050505;
+    background:white;
+    border-radius:999px;
+    padding:7px 10px;
+    font-size:12px;
+    font-weight:700;
+    white-space:nowrap;
+}
+
+.task-pill.waiting{
+    color:#d6dde6;
+    background:#1a2129;
+    border:1px solid rgba(255,255,255,0.08);
+}
+
+.goal-item{
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+    background:#0b0f14;
+    border:1px solid rgba(255,255,255,0.07);
+    border-radius:14px;
+    padding:13px;
+}
+
+.goal-check{
+    width:20px;
+    height:20px;
+    border-radius:7px;
+    border:1px solid rgba(255,255,255,0.16);
+    background:#151b22;
+    flex:0 0 auto;
+    margin-top:2px;
+}
+
+.goal-item.done .goal-check{
+    background:white;
+    border-color:white;
+}
+
+.goal-item.done .goal-check::after{
+    content:"";
+    display:block;
+    width:9px;
+    height:5px;
+    border-left:2px solid #08090b;
+    border-bottom:2px solid #08090b;
+    transform:rotate(-45deg);
+    margin:5px 0 0 5px;
+}
+
+.goal-item h3{
+    font-size:14px;
+    margin-bottom:3px;
+}
+
+.goal-item p{
+    font-size:13px;
+    line-height:1.45;
+}
+
+.question-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:10px;
+    margin-top:14px;
+}
+
+.question-card{
+    background:#0b0f14;
+    border:1px solid rgba(255,255,255,0.07);
+    border-radius:14px;
+    padding:14px;
+}
+
+.question-card span{
+    color:#8f98a3;
+    display:block;
+    font-size:12px;
+    margin-bottom:6px;
+}
+
+.question-card strong{
+    font-size:14px;
+    line-height:1.35;
+}
+
+.subgoal-card{
+    background:#0b0f14;
+    border:1px solid rgba(255,255,255,0.07);
+    border-radius:14px;
+    padding:14px;
+}
+
+.subgoal-top{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    align-items:flex-start;
+    margin-bottom:10px;
+}
+
+.subgoal-top h3{
+    font-size:15px;
+}
+
+.subgoal-owner{
+    color:#cbd3dc;
+    background:#151b22;
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:999px;
+    padding:5px 8px;
+    font-size:12px;
+    white-space:nowrap;
+}
+
+.progress-track{
+    height:8px;
+    background:#151b22;
+    border-radius:999px;
+    overflow:hidden;
+    margin:10px 0;
+}
+
+.progress-fill{
+    height:100%;
+    background:white;
+    border-radius:999px;
+}
+
+.goal-actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:18px;
+}
+
+.mindmap-canvas{
+    margin-top:16px;
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:16px;
+    padding:18px;
+    background:
+        radial-gradient(circle at 15% 20%, rgba(18,103,179,0.22), transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(17,148,95,0.16), transparent 40%),
+        #0b0f14;
+    min-height:320px;
+    position:relative;
+    overflow:hidden;
+}
+
+.mindmap-root{
+    display:flex;
+    justify-content:center;
+    margin-bottom:22px;
+    position:relative;
+    z-index:2;
+}
+
+.map-lanes{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:14px;
+    position:relative;
+    z-index:2;
+}
+
+.map-lane{
+    background:rgba(255,255,255,0.03);
+    border:1px solid rgba(255,255,255,0.07);
+    border-radius:14px;
+    padding:12px;
+}
+
+.map-lane h4{
+    font-size:12px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:#9fb0c4;
+    margin-bottom:10px;
+}
+
+.map-node{
+    border:1px solid rgba(255,255,255,0.14);
+    border-radius:12px;
+    padding:10px 11px;
+    margin-bottom:10px;
+    background:linear-gradient(135deg, rgba(24,34,46,0.95), rgba(15,20,28,0.95));
+}
+
+.map-node.root{
+    max-width:520px;
+    background:linear-gradient(135deg, #0e3a68, #1267b3);
+    box-shadow:0 10px 30px rgba(18,103,179,0.3);
+}
+
+.map-node strong{
+    display:block;
+    font-size:14px;
+    margin-bottom:4px;
+}
+
+.map-node p{
+    font-size:12px;
+    color:#cdd8e6;
+    line-height:1.4;
+}
+
+.map-empty{
+    color:#8f98a3;
+    font-size:14px;
+}
+
+.mindmap-svg{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+    z-index:1;
+}
+
+.map-connector{
+    fill:none;
+    stroke:rgba(112,196,255,0.5);
+    stroke-width:2;
+}
+
+.map-node.selectable{
+    cursor:pointer;
+    transition:transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.map-node.selectable:hover{
+    transform:translateY(-1px);
+    border-color:rgba(130,210,255,0.6);
+}
+
+.map-node.selected{
+    border-color:#7cd3ff;
+    box-shadow:0 0 0 1px rgba(124,211,255,0.65), 0 10px 26px rgba(15,90,145,0.28);
+}
+
+.reply-context{
+    display:none;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin:0 34px 10px;
+    padding:10px 12px;
+    border-radius:12px;
+    border:1px solid rgba(124,211,255,0.28);
+    background:rgba(11,50,76,0.35);
+}
+
+.reply-context.active{
+    display:flex;
+}
+
+.reply-context span{
+    font-size:12px;
+    color:#d8ebf8;
+}
+
+.reply-context button{
+    padding:6px 10px;
+    border-radius:8px;
+    border:1px solid rgba(255,255,255,0.18);
+    background:rgba(0,0,0,0.25);
+    color:white;
+    font-size:12px;
+}
+
+.team-toolbar{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom:14px;
+}
+
+.add-person{
+    display:grid;
+    grid-template-columns:1fr 1fr auto;
+    gap:10px;
+    margin-top:14px;
+}
+
+.goal-editor{
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:10px;
+    margin-top:14px;
+}
+
+.goal-editor input{
+    min-width:0;
+    background:#0b0f14;
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:12px;
+    padding:12px;
+}
+
+.add-person input{
+    min-width:0;
+    background:#0b0f14;
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:12px;
+    padding:12px;
+}
+
+.secondary-btn{
+    background:#171d24;
+    color:white;
+    border:1px solid rgba(255,255,255,0.08);
+}
+
+.message{
+    width:fit-content;
+    max-width:min(760px,78%);
+    margin-bottom:18px;
+    line-height:1.58;
+    animation:fadeUp 0.2s ease;
+}
+
+.message-inner{
+    position:relative;
+    padding:13px 15px 10px;
+    border-radius:18px;
+    box-shadow:0 14px 34px rgba(0,0,0,0.2);
+}
+
+.message.compact{
+    margin-bottom:14px;
+}
+
+.message.compact .message-inner{
+    padding:10px 13px 8px;
+}
+
+.message.compact .message-text{
+    font-size:15px;
+}
+
+.message.compact .message-meta{
+    margin-top:4px;
+}
+
+.message.activity{
+    width:100%;
+    max-width:900px;
+    margin:8px auto 14px;
+}
+
+.message.activity .message-inner{
+    padding:0;
+    border-radius:12px;
+    background:transparent;
+    box-shadow:none;
+}
+
+.activity-card{
+    border:1px solid rgba(255,255,255,0.07);
+    background:rgba(255,255,255,0.025);
+    border-radius:12px;
+    color:rgba(255,255,255,0.48);
+    font-size:12px;
+}
+
+.activity-card summary{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding:10px 12px;
+    cursor:pointer;
+    list-style:none;
+}
+
+.activity-card summary::-webkit-details-marker{
+    display:none;
+}
+
+.activity-title{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-weight:650;
+}
+
+.activity-dot{
+    width:6px;
+    height:6px;
+    border-radius:999px;
+    background:rgba(255,255,255,0.36);
+}
+
+.activity-body{
+    padding:0 12px 11px 26px;
+    color:rgba(255,255,255,0.58);
+    line-height:1.45;
+}
+
+.message-text{
+    overflow-wrap:anywhere;
+    font-size:15px;
+}
+
+.message-text p{
+    margin-bottom:9px;
+}
+
+.message-text h3{
+    font-size:15px;
+    line-height:1.35;
+    margin:12px 0 7px;
+    color:#f7fafc;
+}
+
+.message-text h3:first-child{
+    margin-top:0;
+}
+
+.user .message-text h3{
+    color:#050505;
+}
+
+.message-text p:last-child{
+    margin-bottom:0;
+}
+
+.message-text ul,
+.message-text ol{
+    margin:8px 0 10px 19px;
+}
+
+.message-text li{
+    margin-bottom:5px;
+}
+
+.message-text strong{
+    color:#ffffff;
+    font-weight:700;
+}
+
+.user .message-text strong{
+    color:#000000;
+}
+
+.message-text code{
+    background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:6px;
+    padding:2px 5px;
+    font-family:Consolas,monospace;
+    font-size:0.92em;
+}
+
+.user .message-text code{
+    background:rgba(0,0,0,0.07);
+    border-color:rgba(0,0,0,0.08);
+}
+
+.tts-sentence{
+    border-radius:6px;
+    padding:1px 2px;
+    margin:-1px -2px;
+    transition:background 0.12s,color 0.12s;
+}
+
+.tts-sentence:hover{
+    background:rgba(255,255,255,0.06);
+    cursor:pointer;
+}
+
+.tts-sentence.reading{
+    background:rgba(155,168,255,0.2);
+    color:#f3f6ff;
+}
+
+.message-meta{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-top:7px;
+    font-size:12px;
+    color:rgba(255,255,255,0.45);
+}
+
+.user .message-meta{
+    justify-content:flex-end;
+    color:rgba(0,0,0,0.48);
+}
+
+.tool-trace{
+    display:flex;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:6px;
+    margin-top:8px;
+    font-size:11px;
+    color:rgba(255,255,255,0.42);
+}
+
+.tool-chip{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    padding:4px 7px;
+    border-radius:999px;
+    background:rgba(255,255,255,0.055);
+    border:1px solid rgba(255,255,255,0.075);
+    color:rgba(255,255,255,0.62);
+    font-weight:600;
+    font-family:'Inter',sans-serif;
+    font-size:11px;
+    cursor:pointer;
+}
+
+.tool-chip svg{
+    width:11px;
+    height:11px;
+}
+
+.tool-chip:hover{
+    background:rgba(255,255,255,0.09);
+    color:rgba(255,255,255,0.84);
+}
+
+.message-actions{
+    position:absolute;
+    top:-14px;
+    right:8px;
+    display:flex;
+    gap:5px;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity 0.15s, transform 0.15s;
+    transform:translateY(4px);
+    z-index:10;
+}
+
+.message:hover .message-actions,
+.message.selected .message-actions{
+    opacity:1;
+    pointer-events:auto;
+    transform:translateY(0);
+}
+
+.icon-btn{
+    width:30px;
+    height:30px;
+    display:grid;
+    place-items:center;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,0.1);
+    background:rgba(14,18,24,0.96);
+    color:rgba(255,255,255,0.78);
+    padding:0;
+    font-size:13px;
+    line-height:1;
+    box-shadow:0 4px 16px rgba(0,0,0,0.35), 0 1px 3px rgba(0,0,0,0.2);
+    cursor:pointer;
+    transition:background 0.15s, transform 0.15s, color 0.15s;
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+}
+
+.icon-btn svg{
+    width:14px;
+    height:14px;
+    flex-shrink:0;
+}
+
+.icon-btn:hover{
+    transform:translateY(-2px);
+    background:rgba(255,255,255,0.13);
+    color:white;
+}
+
+.icon-btn.icon-btn-delete:hover{
+    background:rgba(255,60,60,0.18);
+    border-color:rgba(255,80,80,0.28);
+    color:#ff6b6b;
+}
+
+.icon-btn.icon-btn-copy.copied{
+    background:rgba(60,210,100,0.15);
+    border-color:rgba(60,210,100,0.3);
+    color:#5de49a;
+}
+
+.user .icon-btn{
+    border-color:rgba(0,0,0,0.1);
+    background:rgba(255,255,255,0.95);
+    color:rgba(0,0,0,0.65);
+    box-shadow:0 4px 16px rgba(0,0,0,0.14);
+}
+
+.user .icon-btn:hover{
+    background:rgba(240,240,240,0.98);
+    color:rgba(0,0,0,0.85);
+}
+
+.user .icon-btn.icon-btn-delete:hover{
+    background:rgba(255,220,220,0.98);
+    border-color:rgba(255,100,100,0.3);
+    color:#d63030;
+}
+
+/* ── Selected state ── */
+.message.selected .message-inner{
+    outline:2px solid rgba(99,102,241,0.7);
+    outline-offset:2px;
+}
+
+.message.selected{
+    user-select:none;
+}
+
+.select-check{
+    position:absolute;
+    top:-6px;
+    left:-6px;
+    width:20px;
+    height:20px;
+    border-radius:6px;
+    border:1.5px solid rgba(255,255,255,0.2);
+    background:rgba(14,18,24,0.9);
+    display:grid;
+    place-items:center;
+    cursor:pointer;
+    opacity:0;
+    transition:opacity 0.15s, background 0.15s, border-color 0.15s;
+    z-index:5;
+}
+
+.message:hover .select-check,
+.message.selected .select-check{
+    opacity:1;
+}
+
+.message.selected .select-check{
+    background:#6366f1;
+    border-color:#6366f1;
+}
+
+.message.selected .select-check svg{
+    opacity:1;
+}
+
+.select-check svg{
+    width:11px;
+    height:11px;
+    color:white;
+    opacity:0;
+    transition:opacity 0.15s;
+}
+
+/* ── Selection toolbar ── */
+.selection-toolbar{
+    position:fixed;
+    bottom:110px;
+    left:50%;
+    transform:translateX(-50%) translateY(12px);
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background:rgba(14,18,25,0.94);
+    border:1px solid rgba(255,255,255,0.1);
+    border-radius:16px;
+    padding:10px 14px;
+    box-shadow:0 24px 60px rgba(0,0,0,0.5), 0 4px 16px rgba(0,0,0,0.3);
+    backdrop-filter:blur(20px);
+    -webkit-backdrop-filter:blur(20px);
+    opacity:0;
+    pointer-events:none;
+    transition:opacity 0.2s, transform 0.2s;
+    z-index:100;
+    white-space:nowrap;
+}
+
+.selection-toolbar.visible{
+    opacity:1;
+    pointer-events:auto;
+    transform:translateX(-50%) translateY(0);
+}
+
+.sel-count{
+    font-size:13px;
+    font-weight:600;
+    color:#a0aab4;
+    padding-right:4px;
+    border-right:1px solid rgba(255,255,255,0.1);
+    margin-right:4px;
+    min-width:70px;
+    text-align:right;
+}
+
+.sel-btn{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    padding:7px 12px;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,0.08);
+    background:transparent;
+    color:rgba(255,255,255,0.82);
+    font-size:13px;
+    font-weight:500;
+    font-family:'Inter',sans-serif;
+    cursor:pointer;
+    transition:background 0.15s, color 0.15s;
+}
+
+.sel-btn svg{
+    width:14px;
+    height:14px;
+    flex-shrink:0;
+}
+
+.sel-btn:hover{
+    background:rgba(255,255,255,0.08);
+    color:white;
+}
+
+.sel-btn.sel-btn-danger:hover{
+    background:rgba(255,60,60,0.15);
+    border-color:rgba(255,80,80,0.25);
+    color:#ff6b6b;
+}
+
+.sel-btn-close{
+    width:28px;
+    height:28px;
+    border-radius:8px;
+    border:1px solid rgba(255,255,255,0.08);
+    background:transparent;
+    color:rgba(255,255,255,0.5);
+    display:grid;
+    place-items:center;
+    cursor:pointer;
+    transition:background 0.15s;
+    padding:0;
+    margin-left:2px;
+}
+
+.sel-btn-close:hover{
+    background:rgba(255,255,255,0.07);
+    color:white;
+}
+
+.user{
+    margin-left:auto;
+    color:black;
+}
+
+.user .message-inner{
+    background:#f7f8fb;
+    border-radius:18px 18px 6px 18px;
+}
+
+.ai{
+    color:white;
+}
+
+.ai .message-inner{
+    background:#12171d;
+    border:1px solid rgba(255,255,255,0.07);
+    border-radius:18px 18px 18px 6px;
+}
+
+.bottom{
+    padding:18px 34px 26px;
+    border-top:1px solid rgba(255,255,255,0.05);
+    background:rgba(8,9,11,0.96);
+}
+
+.suggestions{
+    max-width:900px;
+    margin:0 auto 12px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+}
+
+.suggestion-btn{
+    background:#171b20;
+    color:rgba(255,255,255,0.86);
+    border:1px solid rgba(255,255,255,0.08);
+    padding:10px 14px;
+    border-radius:999px;
+    font-size:14px;
+    font-weight:500;
+}
+
+.suggestion-btn:hover{
+    background:#232a32;
+    transform:translateY(-1px);
+}
+
+.input-wrap{
+    display:flex;
+    gap:14px;
+    max-width:900px;
+    margin:0 auto;
+    background:#11161c;
+    padding:10px;
+    border-radius:18px;
+    border:1px solid rgba(255,255,255,0.09);
+    box-shadow:0 18px 46px rgba(0,0,0,0.24);
+}
+
+input{
+    flex:1;
+    background:none;
+    border:none;
+    color:white;
+    font-size:15px;
+    outline:none;
+    padding:0 4px;
+}
+
+button{
+    background:white;
+    color:black;
+    border:none;
+    padding:12px 20px;
+    border-radius:14px;
+    font-weight:600;
+    cursor:pointer;
+    transition:0.2s;
+}
+
+button.mic-toggle{
+    width:42px;
+    height:42px;
+    min-width:42px;
+    padding:0;
+    border-radius:13px;
+    background:#171d24;
+    color:rgba(255,255,255,0.62);
+    border:1px solid rgba(255,255,255,0.08);
+    display:grid;
+    place-items:center;
+}
+
+button.mic-toggle:hover{
+    background:#232a32;
+    color:white;
+    transform:none;
+}
+
+button.mic-toggle.active{
+    background:rgba(52,211,153,0.14);
+    border-color:rgba(52,211,153,0.32);
+    color:#6ee7b7;
+}
+
+button.mic-toggle.listening{
+    animation:tts-pulse 1.8s ease-in-out infinite;
+}
+
+button.tool-chip{
+    background:rgba(255,255,255,0.055);
+    color:rgba(255,255,255,0.62);
+    border:1px solid rgba(255,255,255,0.075);
+    padding:4px 7px;
+    border-radius:999px;
+    font-size:11px;
+    font-weight:600;
+}
+
+button.tool-chip:hover{
+    background:rgba(255,255,255,0.09);
+    color:rgba(255,255,255,0.84);
+    transform:none;
+}
+
+@media (max-width:800px){
+    .topbar,
+    .chat-area,
+    .bottom{
+        padding-left:18px;
+        padding-right:18px;
+    }
+
+    .status-pill{
+        display:none;
+    }
+
+    .message{
+        max-width:90%;
+    }
+
+    .goals-view{
+        padding-left:18px;
+        padding-right:18px;
+    }
+
+    .goals-hero,
+    .goal-grid,
+    .question-grid{
+        grid-template-columns:1fr;
+    }
+
+    .team-row{
+        grid-template-columns:1fr;
+    }
+
+    .add-person{
+        grid-template-columns:1fr;
+    }
+
+    .goal-editor{
+        grid-template-columns:1fr;
+    }
+
+    .goal-metric-grid{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+    }
+
+    .mission-text{
+        font-size:19px;
+    }
+}
+
+@keyframes fadeUp{
+    from{
+        opacity:0;
+        transform:translateY(8px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+/* ── TTS toggle ── */
+.topbar-right{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.tts-toggle,
+.mic-toggle{
+    width:38px;
+    height:38px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,0.07);
+    background:transparent;
+    color:rgba(255,255,255,0.4);
+    display:grid;
+    place-items:center;
+    cursor:pointer;
+    transition:all 0.2s;
+    padding:0;
+    flex-shrink:0;
+}
+
+.tts-toggle svg,
+.mic-toggle svg{
+    width:18px;
+    height:18px;
+}
+
+.tts-toggle:hover,
+.mic-toggle:hover{
+    background:rgba(255,255,255,0.07);
+    color:rgba(255,255,255,0.8);
+    border-color:rgba(255,255,255,0.12);
+}
+
+.tts-toggle.active{
+    background:rgba(120,140,255,0.12);
+    border-color:rgba(120,140,255,0.28);
+    color:#9ba8ff;
+}
+
+.mic-toggle.active{
+    background:rgba(52,211,153,0.12);
+    border-color:rgba(52,211,153,0.28);
+    color:#6ee7b7;
+}
+
+.tts-toggle.speaking,
+.mic-toggle.listening{
+    animation:tts-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes tts-pulse{
+    0%,100%{ box-shadow:0 0 0 0 rgba(120,140,255,0.35); }
+    50%{ box-shadow:0 0 0 7px rgba(120,140,255,0); }
+}
+
+/* ── Typing indicator ── */
+.typing-dots{
+    display:flex;
+    align-items:center;
+    gap:5px;
+    padding:6px 2px;
+}
+
+.typing-dots span{
+    width:7px;
+    height:7px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.35);
+    animation:typing-bounce 1.3s ease-in-out infinite;
+}
+
+.typing-dots span:nth-child(2){ animation-delay:0.18s; }
+.typing-dots span:nth-child(3){ animation-delay:0.36s; }
+
+@keyframes typing-bounce{
+    0%,60%,100%{ transform:translateY(0); opacity:0.35; }
+    30%{ transform:translateY(-6px); opacity:1; }
+}
+
+/* ── Nav chip inside message ── */
+.nav-chip{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    padding:3px 10px 3px 8px;
+    border-radius:999px;
+    background:rgba(99,102,241,0.13);
+    border:1px solid rgba(99,102,241,0.28);
+    color:#a5b4fc;
+    font-size:13px;
+    font-weight:500;
+    cursor:pointer;
+    vertical-align:middle;
+    transition:background 0.15s, transform 0.15s;
+    margin:0 3px;
+    line-height:1.4;
+}
+
+.nav-chip svg{
+    width:11px;
+    height:11px;
+    flex-shrink:0;
+}
+
+.nav-chip:hover{
+    background:rgba(99,102,241,0.24);
+    transform:translateY(-1px);
+    color:#c7d2fe;
+}
+
+/* ── Intro card ── */
+.intro-card{
+    max-width:760px;
+    margin:18px 0 28px;
+    padding:4px 2px;
+    border-radius:0;
+    background:transparent;
+    border:0;
+    box-shadow:none;
+    position:relative;
+    animation:introFadeIn 0.5s cubic-bezier(0.22,1,0.36,1) both;
+}
+
+.intro-card::before{
+    display:none;
+}
+
+.intro-tag{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:#6366f1;
+    margin-bottom:14px;
+}
+
+.intro-tag-dot{
+    width:6px;height:6px;
+    border-radius:50%;
+    background:#6366f1;
+    animation:pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot{
+    0%,100%{opacity:1;transform:scale(1);}
+    50%{opacity:0.4;transform:scale(0.7);}
+}
+
+.intro-text{
+    font-size:19px;
+    font-weight:650;
+    line-height:1.5;
+    letter-spacing:0;
+    color:#f0f4ff;
+    margin-bottom:10px;
+}
+
+.intro-text strong{
+    color:#a5b4fc;
+}
+
+.intro-question{
+    font-size:15px;
+    font-weight:600;
+    color:#a5b4fc;
+    line-height:1.5;
+    padding-top:0;
+    border-top:0;
+}
+
+.intro-skeleton{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+
+.intro-skeleton-line{
+    height:18px;
+    border-radius:8px;
+    background:linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+    background-size:200% 100%;
+    animation:shimmer 1.4s ease-in-out infinite;
+}
+
+.intro-skeleton-line.short{ width:55%; }
+.intro-skeleton-line.medium{ width:80%; }
+
+@keyframes shimmer{
+    0%{background-position:200% 0;}
+    100%{background-position:-200% 0;}
+}
+
+@keyframes introFadeIn{
+    from{opacity:0;transform:translateY(12px);}
+    to{opacity:1;transform:translateY(0);}
+}
+
+/* ── Memory View ── */
+.memory-view{
+    overflow-y:auto;
+    background:#08090b;
+    flex:1;
+    min-height:0;
+}
+
+.memory-shell{
+    width:100%;
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    min-height:0;
+}
+
+/* Hero */
+.mem-hero{
+    position:relative;
+    padding:22px 28px;
+    overflow:hidden;
+    border-bottom:1px solid rgba(255,255,255,0.05);
+    background:#0b0f16;
+    flex-shrink:0;
+}
+
+.mem-hero-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:16px;
+    gap:16px;
+}
+
+.mem-hero-icon{
+    width:44px;height:44px;
+    border-radius:14px;
+    background:linear-gradient(135deg,#1e2a4a,#111827);
+    border:1px solid rgba(99,102,241,0.25);
+    display:grid;place-items:center;
+    flex-shrink:0;
+    box-shadow:0 0 24px rgba(99,102,241,0.12);
+}
+
+.mem-hero-icon svg{ width:20px;height:20px;color:#818cf8; }
+
+.mem-hero-meta{ flex:1; }
+
+.mem-hero-label{
+    font-size:11px;font-weight:700;
+    letter-spacing:0.1em;text-transform:uppercase;
+    color:#4f5d78;margin-bottom:4px;
+}
+
+.mem-hero-title{
+    font-size:22px;font-weight:700;
+    letter-spacing:-0.03em;color:white;
+}
+
+.memory-refresh-btn{
+    display:flex;align-items:center;gap:7px;
+    padding:9px 16px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,0.08);
+    background:rgba(255,255,255,0.04);
+    color:#6b7280;font-size:13px;font-weight:500;
+    font-family:'Inter',sans-serif;cursor:pointer;
+    transition:all 0.2s;flex-shrink:0;
+    backdrop-filter:blur(8px);
+}
+.memory-refresh-btn svg{ width:14px;height:14px; }
+.memory-refresh-btn:hover{
+    background:rgba(255,255,255,0.08);color:white;
+    border-color:rgba(255,255,255,0.15);
+}
+.memory-refresh-btn.spinning svg{ animation:spin-once 0.65s linear; }
+@keyframes spin-once{
+    from{transform:rotate(0deg);}to{transform:rotate(360deg);}
+}
+
+/* Stats row */
+.mem-stats{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:10px;
+}
+.mem-stat{
+    background:rgba(255,255,255,0.04);
+    border:1px solid rgba(255,255,255,0.07);
+    border-radius:12px;
+    padding:10px 12px;
+    min-width:0;
+}
+.mem-stat-val{
+    font-size:20px;font-weight:700;letter-spacing:-0.03em;
+    color:white;
+}
+.mem-stat-label{
+    font-size:11px;color:#4f5d78;margin-top:3px;
+    font-weight:600;text-transform:uppercase;letter-spacing:0.07em;
+}
+
+/* Body */
+.mem-body{
+    display:grid;
+    grid-template-columns:minmax(0,1.18fr) minmax(320px,0.82fr);
+    gap:18px;
+    flex:1;
+    min-height:0;
+    overflow:hidden;
+    padding:22px 28px;
+}
+
+.mem-left,
+.mem-right{
+    min-height:0;
+    overflow-y:auto;
+    padding-right:4px;
+}
+
+/* Content cap for readability */
+.mem-section{
+    background:rgba(255,255,255,0.025);
+    border:1px solid rgba(255,255,255,0.06);
+    border-radius:16px;
+    padding:16px;
+    margin-bottom:14px;
+}
+.mem-section-label{
+    font-size:11px;font-weight:800;letter-spacing:0.09em;
+    text-transform:uppercase;color:#64748b;margin-bottom:12px;
+    display:flex;align-items:center;gap:8px;
+}
+.mem-section-label::after{
+    content:'';flex:1;height:1px;
+    background:rgba(255,255,255,0.05);
+}
+.mem-section-label-row{
+    display:flex;align-items:center;gap:10px;margin-bottom:14px;
+}
+.mem-section-label-row .mem-section-label{ margin-bottom:0; }
+
+.mem-badge{
+    display:inline-flex;align-items:center;justify-content:center;
+    min-width:20px;height:20px;padding:0 6px;
+    background:rgba(99,102,241,0.15);
+    border:1px solid rgba(99,102,241,0.25);
+    color:#818cf8;font-size:11px;font-weight:700;
+    border-radius:999px;
+}
+
+/* Story */
+.mem-story-card{
+    position:relative;
+    background:#0f1622;
+    border:1px solid rgba(255,255,255,0.07);
+    border-radius:12px;padding:14px 15px;
+    font-size:13.5px;line-height:1.6;color:#c8d6e8;
+    white-space:pre-wrap;min-height:62px;
+    max-height:170px;
+    overflow-y:auto;
+    animation:memFade 0.4s ease both;
+}
+.mem-story-empty{ color:#374151;font-style:italic; }
+
+/* Facts */
+.mem-facts-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+    gap:8px;
+}
+
+.mem-fact{
+    display:flex;align-items:flex-start;gap:12px;
+    background:rgba(255,255,255,0.025);
+    border:1px solid rgba(255,255,255,0.055);
+    border-radius:14px;padding:13px 15px;
+    transition:all 0.2s;
+    animation:memFade 0.35s ease both;
+}
+.mem-fact:hover{
+    background:rgba(255,255,255,0.045);
+    border-color:rgba(255,255,255,0.11);
+}
+
+.mem-fact-icon{
+    width:28px;height:28px;border-radius:8px;
+    background:rgba(59,130,246,0.15);
+    border:1px solid rgba(59,130,246,0.2);
+    display:grid;place-items:center;flex-shrink:0;margin-top:1px;
+}
+.mem-fact-icon svg{ width:13px;height:13px;color:#60a5fa; }
+
+.mem-fact-body{ flex:1;min-width:0; }
+.mem-fact-text{
+    font-size:13.5px;line-height:1.5;color:#cbd5e1;
+    word-break:break-word;
+}
+.mem-fact-meta{
+    font-size:11px;color:#374151;margin-top:5px;
+}
+
+.mem-fact-del{
+    width:26px;height:26px;border-radius:8px;
+    border:1px solid transparent;background:transparent;
+    color:#2d3748;display:grid;place-items:center;
+    cursor:pointer;flex-shrink:0;transition:all 0.15s;padding:0;
+}
+.mem-fact-del svg{ width:12px;height:12px; }
+.mem-fact-del:hover{
+    background:rgba(239,68,68,0.12);
+    border-color:rgba(239,68,68,0.22);color:#f87171;
+}
+
+.mem-empty{
+    color:#374151;font-size:13px;font-style:italic;padding:16px 0;
+}
+
+/* Convo */
+.mem-convo{
+    display:flex;flex-direction:column;gap:10px;
+    max-height:calc(100vh - 265px);
+    overflow-y:auto;
+    padding-right:2px;
+}
+
+.mem-msg{ display:flex;flex-direction:column;gap:3px; }
+.mem-msg.user{ align-items:flex-end; }
+.mem-msg.ai{ align-items:flex-start; }
+
+.mem-msg-bubble{
+    max-width:92%;padding:10px 14px;
+    font-size:13px;line-height:1.52;
+    animation:memFade 0.3s ease both;
+}
+
+.mem-msg.ai .mem-msg-bubble{
+    background:#0f1622;
+    border:1px solid rgba(255,255,255,0.07);
+    border-radius:4px 16px 16px 16px;color:#9ca3af;
+}
+
+.mem-msg.user .mem-msg-bubble{
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.09);
+    border-radius:16px 4px 16px 16px;color:#e2e8f0;
+}
+
+.mem-msg-time{
+    font-size:10px;color:#374151;
+    padding:0 4px;
+}
+
+@keyframes memFade{
+    from{opacity:0;transform:translateY(6px);}
+    to{opacity:1;transform:translateY(0);}
+}
+
+.mem-loading{
+    display:flex;align-items:center;gap:8px;
+    color:#374151;font-size:13px;padding:8px 0;
+}
+.mem-loading::before{
+    content:'';width:14px;height:14px;border-radius:50%;
+    border:2px solid rgba(99,102,241,0.3);border-top-color:#818cf8;
+    animation:spin-once 0.7s linear infinite;flex-shrink:0;
+}
+
+@media(max-width:800px){
+    .mem-body{grid-template-columns:1fr;}
+    .mem-body{overflow-y:auto;padding:16px;}
+    .mem-left,.mem-right{overflow:visible;padding-right:0;}
+    .mem-convo{max-height:none;overflow:visible;}
+    .mem-hero{padding:18px 16px;}
+    .mem-stats{gap:10px;}
+}
+
+/* ── Founder Match ── */
+.founder-view{
+    overflow-y:auto;
+    padding:26px 28px;
+    background:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+    background-size:42px 42px;
+}
+
+.council-shell{
+    display:grid;
+    gap:14px;
+}
+
+.council-grid{
+    display:grid;
+    grid-template-columns:repeat(5,minmax(0,1fr));
+    gap:12px;
+    margin-top:16px;
+}
+
+.council-seat{
+    background:linear-gradient(165deg, rgba(25,32,44,0.95), rgba(13,18,26,0.94));
+    border:1px solid rgba(122,167,255,0.2);
+    border-radius:16px;
+    padding:14px;
+    box-shadow:0 16px 34px rgba(2,7,15,0.38);
+}
+
+.council-avatar{
+    width:40px;
+    height:40px;
+    border-radius:50%;
+    display:grid;
+    place-items:center;
+    color:#dbeafe;
+    margin-bottom:8px;
+    background:linear-gradient(135deg,#255ea8,#4bb8df);
+    border:1px solid rgba(255,255,255,0.28);
+}
+
+.council-name{font-size:13px;font-weight:700;letter-spacing:0.01em;}
+.council-focus{font-size:11px;color:#9bb3ca;margin-top:4px;}
+.council-stance{font-size:12px;color:#e7eef7;margin-top:9px;line-height:1.45;}
+
+.debate-feed{
+    margin-top:16px;
+    background:linear-gradient(170deg,rgba(14,20,30,0.95),rgba(8,12,18,0.95));
+    border:1px solid rgba(134,173,255,0.18);
+    border-radius:16px;
+    padding:14px;
+    max-height:280px;
+    overflow:auto;
+}
+
+.debate-line{
+    font-size:13px;
+    line-height:1.45;
+    color:#e3ebf5;
+    padding:8px 0;
+    border-bottom:1px solid rgba(130,154,197,0.2);
+}
+
+.debate-line:last-child{border-bottom:none;}
+
+.council-metrics{
+    margin-top:14px;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+}
+
+.metric-card{
+    background:linear-gradient(160deg, rgba(14,20,31,0.95), rgba(9,13,21,0.95));
+    border:1px solid rgba(142,173,237,0.18);
+    border-radius:14px;
+    padding:12px;
+}
+
+.bar{
+    margin-top:6px;
+    height:9px;
+    border-radius:999px;
+    background:rgba(255,255,255,0.08);
+    overflow:hidden;
+}
+
+.bar > span{
+    display:block;
+    height:100%;
+    background:linear-gradient(90deg,#2f81f7,#37c6ff 55%,#46d59b);
+}
+@media(max-width:1080px){
+    .council-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+}
+@media(max-width:680px){
+    .council-grid{grid-template-columns:1fr;}
+    .council-metrics{grid-template-columns:1fr;}
+}
+.founder-shell{
+    max-width:1240px;
+    width:100%;
+    margin:0 auto;
+    display:grid;
+    grid-template-columns:minmax(0,1.25fr) minmax(360px,0.75fr);
+    gap:18px;
+}
+
+.founder-panel{
+    background:#10151b;
+    border:1px solid rgba(255,255,255,0.07);
+    border-radius:16px;
+    padding:16px;
+}
+
+.founder-head{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:14px;
+    margin-bottom:14px;
+}
+
+.founder-head h2{
+    font-size:18px;
+    letter-spacing:-0.02em;
+}
+
+.founder-head p{
+    color:#7f8996;
+    font-size:13px;
+    line-height:1.45;
+    margin-top:5px;
+}
+
+.founder-count{
+    background:rgba(255,255,255,0.055);
+    border:1px solid rgba(255,255,255,0.08);
+    color:#cbd5e1;
+    border-radius:999px;
+    padding:7px 10px;
+    font-size:12px;
+    font-weight:700;
+    white-space:nowrap;
+}
+
+.founder-controls{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+}
+
+.founder-select{
+    appearance:none;
+    background:#151b22;
+    color:#dbe4ef;
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:999px;
+    padding:8px 28px 8px 11px;
+    font-size:12px;
+    font-weight:700;
+    outline:none;
+    background-image:linear-gradient(45deg,transparent 50%,#94a3b8 50%),linear-gradient(135deg,#94a3b8 50%,transparent 50%);
+    background-position:calc(100% - 15px) 13px,calc(100% - 10px) 13px;
+    background-size:5px 5px,5px 5px;
+    background-repeat:no-repeat;
+}
+
+.founder-filters{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-bottom:12px;
+}
+
+.founder-filter{
+    background:#151b22;
+    color:#aeb8c5;
+    border:1px solid rgba(255,255,255,0.07);
+    border-radius:999px;
+    padding:8px 11px;
+    font-size:12px;
+}
+
+.founder-filter.active{
+    background:rgba(99,102,241,0.16);
+    color:#dbe1ff;
+    border-color:rgba(129,140,248,0.28);
+}
+
+.app-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(92px,1fr));
+    gap:8px;
+    max-height:520px;
+    overflow-y:auto;
+    padding-right:3px;
+}
+
+.app-tile{
+    min-height:72px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,0.06);
+    background:rgba(255,255,255,0.028);
+    padding:9px;
+    text-align:left;
+    color:#cbd5e1;
+}
+
+.app-tile:hover{
+    background:rgba(255,255,255,0.055);
+}
+
+.app-tile.selected{
+    background:rgba(52,211,153,0.12);
+    border-color:rgba(52,211,153,0.32);
+    color:#ecfdf5;
+}
+
+.app-mark{
+    width:30px;
+    height:30px;
+    border-radius:10px;
+    display:grid;
+    place-items:center;
+    background:#f8fafc;
+    color:#f8fafc;
+    font-size:11px;
+    font-weight:800;
+    margin-bottom:8px;
+    overflow:hidden;
+}
+
+.app-mark img{
+    width:18px;
+    height:18px;
+    object-fit:contain;
+}
+
+.app-mark span{
+    color:#111827;
+    font-size:10px;
+    font-weight:900;
+}
+
+.app-name{
+    font-size:12px;
+    font-weight:700;
+    line-height:1.25;
+}
+
+.app-cat{
+    color:#64748b;
+    font-size:10px;
+    margin-top:3px;
+}
+
+.match-card{
+    min-height:420px;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+}
+
+.match-top{
+    display:flex;
+    gap:12px;
+    align-items:center;
+}
+
+.match-avatar{
+    width:56px;
+    height:56px;
+    border-radius:16px;
+    display:grid;
+    place-items:center;
+    background:linear-gradient(135deg,#1f2937,#111827);
+    border:1px solid rgba(255,255,255,0.08);
+    font-weight:800;
+}
+
+.match-name{
+    font-size:20px;
+    font-weight:800;
+    letter-spacing:-0.03em;
+}
+
+.match-role{
+    color:#94a3b8;
+    font-size:13px;
+    margin-top:3px;
+}
+
+.match-score{
+    margin-left:auto;
+    color:#6ee7b7;
+    background:rgba(52,211,153,0.1);
+    border:1px solid rgba(52,211,153,0.22);
+    border-radius:999px;
+    padding:7px 9px;
+    font-size:12px;
+    font-weight:800;
+}
+
+.match-line{
+    color:#dbe4ef;
+    font-size:14px;
+    line-height:1.55;
+}
+
+.match-tags{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+}
+
+.match-tag{
+    background:rgba(255,255,255,0.055);
+    border:1px solid rgba(255,255,255,0.075);
+    color:#cbd5e1;
+    border-radius:999px;
+    padding:6px 8px;
+    font-size:11px;
+    font-weight:650;
+}
+
+.match-actions{
+    display:grid;
+    grid-template-columns:1fr 1fr 1.2fr;
+    gap:8px;
+    margin-top:auto;
+}
+
+.match-actions button{
+    border-radius:12px;
+    padding:11px 12px;
+    font-size:13px;
+}
+
+.match-secondary{
+    background:#171d24;
+    color:white;
+    border:1px solid rgba(255,255,255,0.08);
+}
+
+.match-primary{
+    background:white;
+    color:black;
+}
+
+.match-queue{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    margin-top:12px;
+}
+
+.queue-item{
+    display:flex;
+    justify-content:space-between;
+    gap:8px;
+    padding:10px 11px;
+    border-radius:12px;
+    background:rgba(255,255,255,0.035);
+    border:1px solid rgba(255,255,255,0.055);
+    font-size:12px;
+    color:#cbd5e1;
+}
+
+@media(max-width:980px){
+    .founder-shell{grid-template-columns:1fr;}
+    .app-grid{max-height:420px;}
+}
+
+</style>
+</head>
+<body>
+
+<div class="app">
+
+<div class="sidebar">
+<div class="brand">AI Cofounder</div>
+
+<div class="nav-item active" data-view="chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/></svg><span>Home</span></div>
+<div class="nav-item" data-view="memory"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="5" rx="8" ry="2.8"/><path d="M4 5v14c0 1.5 3.6 2.8 8 2.8s8-1.3 8-2.8V5"/><path d="M4 12c0 1.5 3.6 2.8 8 2.8s8-1.3 8-2.8"/></svg><span>Memory</span></div>
+<div class="nav-item" data-view="council"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="7.5" r="2.6"/><circle cx="6.5" cy="10" r="2"/><circle cx="17.5" cy="10" r="2"/><path d="M4 19c1.2-2.2 3-3.4 5.2-3.4"/><path d="M20 19c-1.2-2.2-3-3.4-5.2-3.4"/><path d="M8.3 19c1-2.5 2.3-3.8 3.7-3.8s2.7 1.3 3.7 3.8"/></svg><span>Council</span></div>
+<div class="nav-item" data-view="goals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19h16"/><path d="M6 16V9"/><path d="M12 16V5"/><path d="M18 16v-7"/></svg><span>Goals</span></div>
+<div class="nav-item" data-view="founder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3"/><path d="M3.5 19c1.4-3 3.2-4.5 5.5-4.5s4.1 1.5 5.5 4.5"/><path d="M16 7h5"/><path d="M16 11h5"/><path d="M16 15h5"/></svg><span>Match</span></div>
+<div class="nav-item" data-view="launch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 14c0-4.8 3.8-8.5 8.6-8.5h1.6L13 7.7V13l2.5-2.5 2.8 2.8L21 10.6"/></svg><span>Launch</span></div>
+</div>
+
+<div class="main">
+
+<div class="topbar">
+<div class="title-block">
+<h1>AI Workspace</h1>
+<p>Focused startup thinking, plans, and next moves.</p>
+</div>
+<div class="topbar-right">
+<button class="tts-toggle" id="ttsToggle" title="Toggle voice" onclick="toggleTTS()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M11 5 6 9H2v6h4l5 4V5z"/>
+        <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+        <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+    </svg>
+</button>
+<div class="status-pill">Live chat</div>
+</div>
+</div>
+
+<div class="view active" id="chatView">
+<div class="chat-area" id="chatArea">
+
+</div>
+
+<div class="reply-context" id="replyContextBar">
+<span id="replyContextText">Replying with context</span>
+<button type="button" onclick="clearReplyContext()">Clear</button>
+</div>
+
+<div class="bottom">
+<div class="suggestions" id="suggestions"></div>
+<div class="input-wrap">
+<input type="text" id="messageInput" placeholder="Talk to your AI cofounder...">
+<button class="mic-toggle" id="micToggle" type="button" title="Dictate message" onclick="toggleMic()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"/>
+        <path d="M19 11a7 7 0 0 1-14 0"/>
+        <path d="M12 18v3"/>
+        <path d="M8 21h8"/>
+    </svg>
+</button>
+<button onclick="sendMessage()">Send</button>
+</div>
+</div>
+
+</div>
+
+<div class="view goals-view" id="goalsView">
+<div class="goals-shell">
+
+<div class="goals-hero">
+<div class="goal-panel">
+<h2>One-Year Company Goal</h2>
+<p>The realistic outcome the company is trying to reach. It should be measurable and grounded.</p>
+<div class="mission-box">
+<div class="mission-label">Company Objective</div>
+<div class="mission-text" id="overallGoalText" onclick="startGoalEdit('overallGoal')"></div>
+</div>
+
+<div class="goal-bubbles">
+<div class="goal-bubble weekly">
+<span>This Week's Push</span>
+<strong id="weeklyGoalText" onclick="startGoalEdit('weeklyGoal')"></strong>
+</div>
+<div class="goal-bubble monthly">
+<span>This Month's Milestone</span>
+<strong id="monthlyGoalText" onclick="startGoalEdit('monthlyGoal')"></strong>
+</div>
+</div>
+
+<div class="goal-actions">
+<button id="goalSetupButton" onclick="askGoalSetup()">Ask AI to set goals</button>
+<button id="assignWeekButton" class="secondary-btn" onclick="askExecutionPlan()">Assign this week</button>
+</div>
+</div>
+</div>
+
+<div class="goal-grid">
+<div class="goal-panel">
+<div class="team-toolbar">
+<div>
+<h2>One-Week Work Chart</h2>
+<p>Exactly what each person should do this week to move the company forward.</p>
+</div>
+<div class="goal-metric">
+<strong id="peopleCount">0</strong>
+<span>People</span>
+</div>
+</div>
+<div class="add-person">
+<input id="personNameInput" type="text" placeholder="Invite collaborator">
+<input id="personRoleInput" type="text" placeholder="Role / skill set">
+<button onclick="addPerson()">Add</button>
+</div>
+<div class="invite-note">For now this is just you and the AI. Added collaborators are placeholders until accounts/invites are connected.</div>
+<div class="team-table" id="teamTasksList"></div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="view goals-view" id="launchView">
+<div class="goals-shell">
+<div class="goal-panel" style="margin-bottom:18px;">
+<h2>Launch Plan Map</h2>
+<p>Visual node map for launch strategy, build steps, and execution sequence.</p>
+<div class="goal-actions">
+<button id="launchMapButton" onclick="generateLaunchMap()">Generate launch map with AI</button>
+<button class="secondary-btn" onclick="resetLaunchMap()">Reset map</button>
+</div>
+<div id="launchMindMap" class="mindmap-canvas"></div>
+</div>
+</div>
+</div>
+
+<div class="view founder-view" id="founderView">
+<div class="founder-shell">
+    <div class="founder-panel">
+        <div class="founder-head">
+            <div>
+                <h2>Tool DNA</h2>
+                <p>Pick what you can use. Match finds people who cover gaps or overlap where it helps.</p>
+            </div>
+            <div class="founder-controls">
+                <select class="founder-select" id="toolSort" title="Sort tools">
+                    <option value="popular">Popular</option>
+                    <option value="az">A-Z</option>
+                    <option value="picked">Picked first</option>
+                </select>
+                <div class="founder-count" id="toolCount">0 picked</div>
+            </div>
+        </div>
+        <div class="founder-filters" id="toolFilters"></div>
+        <div class="app-grid" id="toolGrid"></div>
+    </div>
+
+    <div>
+        <div class="founder-panel" style="margin-bottom:18px;">
+            <div class="founder-head" style="margin-bottom:0;">
+                <div>
+                    <h2>Founder Stack</h2>
+                    <p>Real users show here once they set up their tools.</p>
+                </div>
+                <select class="founder-select" id="matchSort" title="Sort matches">
+                    <option value="fit">Best fit</option>
+                    <option value="overlap">Most overlap</option>
+                    <option value="newest">Newest</option>
+                </select>
+            </div>
+        </div>
+        <div class="founder-panel match-card" id="matchCard"></div>
+        <div class="founder-panel" style="margin-top:18px;">
+            <div class="founder-head" style="margin-bottom:8px;">
+                <div>
+                    <h2>Saved Matches</h2>
+                    <p>People you’d actually DM first.</p>
+                </div>
+            </div>
+            <div class="match-queue" id="matchQueue"></div>
+        </div>
+    </div>
+</div>
+</div>
+
+<div class="view goals-view" id="councilView">
+<div class="goals-shell">
+<div class="goal-panel">
+<h2>Ask The Council</h2>
+<p>5 specialized AI personas challenge each other, then your chat AI gives a concise valuation.</p>
+<div class="add-person" style="margin-top:14px;">
+<input id="councilIdeaInput" type="text" placeholder="Drop your idea here">
+<button id="askCouncilButton" onclick="askCouncil()">Ask the council</button>
+</div>
+<div id="councilThinking" class="invite-note" style="display:none;margin-top:14px;">Council is thinking...</div>
+<div id="councilMembers" class="council-grid"></div>
+<div id="councilDebate" class="debate-feed" style="display:none;"></div>
+<div id="councilMetrics" class="council-metrics" style="display:none;"></div>
+<div id="councilSummary" class="mission-box" style="margin-top:14px;display:none;"></div>
+</div>
+</div>
+</div>
+
+<div class="view memory-view" id="memoryView">
+<div class="memory-shell">
+
+    <!-- Hero header -->
+    <div class="mem-hero">
+        <div class="mem-hero-top">
+            <div class="mem-hero-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/>
+                </svg>
+            </div>
+            <div class="mem-hero-meta">
+                <div class="mem-hero-label">AI Cofounder</div>
+                <div class="mem-hero-title">Memory</div>
+            </div>
+            <button class="memory-refresh-btn" id="memRefreshBtn" onclick="loadMemory()">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v4h4"/><path d="M15 12V8h-4"/><path d="M13.5 5A6 6 0 1 0 14 9"/></svg>
+                Refresh
+            </button>
+        </div>
+        <div class="mem-stats">
+            <div class="mem-stat">
+                <div class="mem-stat-val" id="memBadge">0</div>
+                <div class="mem-stat-label">Saved Facts</div>
+            </div>
+            <div class="mem-stat">
+                <div class="mem-stat-val" id="memMsgCount">0</div>
+                <div class="mem-stat-label">Messages</div>
+            </div>
+            <div class="mem-stat">
+                <div class="mem-stat-val" id="memStoryLen">—</div>
+                <div class="mem-stat-label">Story Length</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Two-column body -->
+    <div class="mem-body">
+        <div class="mem-left">
+
+            <div class="mem-section">
+                <div class="mem-section-label">AI's understanding of you</div>
+                <div class="mem-story-card" id="memStory">
+                    <div class="mem-loading">Loading</div>
+                </div>
+            </div>
+
+            <div class="mem-section">
+                <div class="mem-section-label-row">
+                    <span class="mem-section-label">Saved facts</span>
+                </div>
+                <div class="mem-facts-grid" id="memFacts">
+                    <div class="mem-loading">Loading</div>
+                </div>
+            </div>
+
+        </div>
+        <div class="mem-right">
+
+            <div class="mem-section">
+                <div class="mem-section-label">Recent conversation</div>
+                <div class="mem-convo" id="memConvo">
+                    <div class="mem-loading">Loading</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+</div>
+</div>
+</div>
+<script>
+const chatArea = document.getElementById('chatArea');
+const suggestions = document.getElementById('suggestions');
+const messageInput = document.getElementById('messageInput');
+const overallGoalText = document.getElementById('overallGoalText');
+const weeklyGoalText = document.getElementById('weeklyGoalText');
+const monthlyGoalText = document.getElementById('monthlyGoalText');
+const teamTasksList = document.getElementById('teamTasksList');
+const peopleCount = document.getElementById('peopleCount');
+const personNameInput = document.getElementById('personNameInput');
+const personRoleInput = document.getElementById('personRoleInput');
+const goalSetupButton = document.getElementById('goalSetupButton');
+const assignWeekButton = document.getElementById('assignWeekButton');
+const launchMapButton = document.getElementById('launchMapButton');
+const councilIdeaInput = document.getElementById('councilIdeaInput');
+const askCouncilButton = document.getElementById('askCouncilButton');
+let councilInFlight = false;
+let councilLastIdea = '';
+let councilLastAt = 0;
+const navItems = document.querySelectorAll('.nav-item[data-view]');
+const views = {
+    chat: document.getElementById('chatView'),
+    goals: document.getElementById('goalsView'),
+    launch: document.getElementById('launchView'),
+    memory: document.getElementById('memoryView'),
+    founder: document.getElementById('founderView'),
+    council: document.getElementById('councilView')
+};
+
+function switchView(viewName){
+    Object.entries(views).forEach(([name, view]) => {
+        view.classList.toggle('active', name === viewName);
+    });
+
+    navItems.forEach(item => {
+        item.classList.toggle('active', item.dataset.view === viewName);
+    });
+
+    if(viewName === 'memory') loadMemory();
+    if(viewName === 'launch') renderLaunchMap();
+    if(viewName === 'founder') renderFounderMatch();
+}
+
+navItems.forEach(item => {
+    item.addEventListener('click', () => switchView(item.dataset.view));
+});
+
+const toolCategories = ['All','Design','Code','Docs','No-code','AI','Data','Marketing','Video','Ops','Commerce','3D'];
+let activeToolCategory = 'All';
+let selectedTools = new Set(JSON.parse(localStorage.getItem('founderTools') || '[]'));
+let currentMatchIndex = Number(localStorage.getItem('currentMatchIndex') || 0);
+let savedMatches = JSON.parse(localStorage.getItem('savedMatches') || '[]');
+let founderProfiles = [];
+let founderProfilesLoaded = false;
+let founderProfilesLoading = false;
+let toolSortMode = localStorage.getItem('founderToolSort') || 'popular';
+let matchSortMode = localStorage.getItem('founderMatchSort') || 'fit';
+
+const creatorTools = [
+    ['Figma','Design'],['FigJam','Design'],['Canva','Design'],['Adobe XD','Design'],['Photoshop','Design'],['Illustrator','Design'],['Framer','Design'],['Spline','Design'],['Sketch','Design'],['Penpot','Design'],
+    ['GitHub','Code'],['VS Code','Code'],['Cursor','Code'],['Replit','Code'],['StackBlitz','Code'],['CodePen','Code'],['Vercel','Code'],['Netlify','Code'],['Firebase','Code'],['Supabase','Code'],['Railway','Code'],['Render','Code'],['Docker','Code'],['Postman','Code'],['Linear','Code'],
+    ['Google Docs','Docs'],['Google Slides','Docs'],['Google Sheets','Docs'],['PowerPoint','Docs'],['Excel','Docs'],['Notion','Docs'],['Coda','Docs'],['Airtable','Docs'],['Miro','Docs'],['Whimsical','Docs'],['Pitch','Docs'],['Gamma','Docs'],['Tome','Docs'],
+    ['Webflow','No-code'],['Bubble','No-code'],['Framer Sites','No-code'],['Wix','No-code'],['Squarespace','No-code'],['Carrd','No-code'],['Glide','No-code'],['Softr','No-code'],['Retool','No-code'],['Zapier','No-code'],['Make','No-code'],['n8n','No-code'],
+    ['ChatGPT','AI'],['Claude','AI'],['Gemini','AI'],['Perplexity','AI'],['Midjourney','AI'],['Runway','AI'],['ElevenLabs','AI'],['LangChain','AI'],['LlamaIndex','AI'],['Hugging Face','AI'],['Replicate','AI'],['Pinecone','AI'],['OpenRouter','AI'],
+    ['Tableau','Data'],['Power BI','Data'],['Looker','Data'],['Metabase','Data'],['BigQuery','Data'],['Snowflake','Data'],['Databricks','Data'],['Jupyter','Data'],['Kaggle','Data'],['dbt','Data'],['Amplitude','Data'],['Mixpanel','Data'],
+    ['HubSpot','Marketing'],['Mailchimp','Marketing'],['ConvertKit','Marketing'],['Beehiiv','Marketing'],['Buffer','Marketing'],['Hootsuite','Marketing'],['Typeform','Marketing'],['Tally','Marketing'],['Google Analytics','Marketing'],['Hotjar','Marketing'],['Ahrefs','Marketing'],['SEMrush','Marketing'],
+    ['CapCut','Video'],['Premiere Pro','Video'],['After Effects','Video'],['DaVinci Resolve','Video'],['Final Cut','Video'],['Descript','Video'],['OBS','Video'],['Loom','Video'],['Riverside','Video'],['Figma Slides','Video'],
+    ['Slack','Ops'],['Discord','Ops'],['Teams','Ops'],['Zoom','Ops'],['Google Meet','Ops'],['Calendly','Ops'],['Asana','Ops'],['Trello','Ops'],['Jira','Ops'],['ClickUp','Ops'],['Monday','Ops'],['Dropbox','Ops'],['Drive','Ops'],
+    ['Shopify','Commerce'],['Stripe','Commerce'],['Gumroad','Commerce'],['Lemon Squeezy','Commerce'],['Webflow Ecommerce','Commerce'],['WooCommerce','Commerce'],['Square','Commerce'],
+    ['Blender','3D'],['Unity','3D'],['Unreal','3D'],['Three.js','3D'],['Rive','Design'],['ProtoPie','Design'],['Principle','Design']
+].map(([name, category]) => ({name, category}));
+
+const toolLogoSlugs = {
+    'Figma':'figma','Canva':'canva','Adobe XD':'adobexd','Photoshop':'adobephotoshop','Illustrator':'adobeillustrator','Framer':'framer','Spline':'spline','Sketch':'sketch','Penpot':'penpot',
+    'GitHub':'github','VS Code':'visualstudiocode','Replit':'replit','StackBlitz':'stackblitz','CodePen':'codepen','Vercel':'vercel','Netlify':'netlify','Firebase':'firebase','Supabase':'supabase','Railway':'railway','Render':'render','Docker':'docker','Postman':'postman','Linear':'linear',
+    'Google Docs':'googledocs','Google Slides':'googleslides','Google Sheets':'googlesheets','PowerPoint':'microsoftpowerpoint','Excel':'microsoftexcel','Notion':'notion','Airtable':'airtable','Miro':'miro','Whimsical':'whimsical','Pitch':'pitch',
+    'Webflow':'webflow','Bubble':'bubble','Wix':'wix','Squarespace':'squarespace','Glide':'glide','Retool':'retool','Zapier':'zapier','Make':'make','n8n':'n8n',
+    'ChatGPT':'openai','Claude':'anthropic','Gemini':'googlegemini','Perplexity':'perplexity','Midjourney':'midjourney','Runway':'runway','ElevenLabs':'elevenlabs','LangChain':'langchain','Hugging Face':'huggingface','Replicate':'replicate','Pinecone':'pinecone',
+    'Tableau':'tableau','Power BI':'powerbi','Looker':'looker','BigQuery':'googlebigquery','Snowflake':'snowflake','Databricks':'databricks','Jupyter':'jupyter','Kaggle':'kaggle','dbt':'dbt','Amplitude':'amplitude','Mixpanel':'mixpanel',
+    'HubSpot':'hubspot','Mailchimp':'mailchimp','ConvertKit':'convertkit','Beehiiv':'beehiiv','Buffer':'buffer','Hootsuite':'hootsuite','Typeform':'typeform','Google Analytics':'googleanalytics','Hotjar':'hotjar','Ahrefs':'ahrefs','SEMrush':'semrush',
+    'CapCut':'capcut','Premiere Pro':'adobepremierepro','After Effects':'adobeaftereffects','DaVinci Resolve':'davinciresolve','Final Cut':'finalcutpro','Descript':'descript','OBS':'obsstudio','Loom':'loom',
+    'Slack':'slack','Discord':'discord','Teams':'microsoftteams','Zoom':'zoom','Google Meet':'googlemeet','Calendly':'calendly','Asana':'asana','Trello':'trello','Jira':'jira','ClickUp':'clickup','Monday':'mondaydotcom','Dropbox':'dropbox','Drive':'googledrive',
+    'Shopify':'shopify','Stripe':'stripe','Gumroad':'gumroad','WooCommerce':'woocommerce','Square':'square',
+    'Blender':'blender','Unity':'unity','Unreal':'unrealengine','Three.js':'threedotjs','Rive':'rive'
+};
+
+const toolLogoDomains = {
+    'Figma':'figma.com','FigJam':'figma.com','Canva':'canva.com','Adobe XD':'adobe.com','Photoshop':'adobe.com','Illustrator':'adobe.com','Framer':'framer.com','Spline':'spline.design','Sketch':'sketch.com','Penpot':'penpot.app',
+    'GitHub':'github.com','VS Code':'code.visualstudio.com','Cursor':'cursor.com','Replit':'replit.com','StackBlitz':'stackblitz.com','CodePen':'codepen.io','Vercel':'vercel.com','Netlify':'netlify.com','Firebase':'firebase.google.com','Supabase':'supabase.com','Railway':'railway.app','Render':'render.com','Docker':'docker.com','Postman':'postman.com','Linear':'linear.app',
+    'Google Docs':'docs.google.com','Google Slides':'slides.google.com','Google Sheets':'sheets.google.com','PowerPoint':'microsoft.com','Excel':'microsoft.com','Notion':'notion.so','Coda':'coda.io','Airtable':'airtable.com','Miro':'miro.com','Whimsical':'whimsical.com','Pitch':'pitch.com','Gamma':'gamma.app','Tome':'tome.app',
+    'Webflow':'webflow.com','Bubble':'bubble.io','Framer Sites':'framer.com','Wix':'wix.com','Squarespace':'squarespace.com','Carrd':'carrd.co','Glide':'glideapps.com','Softr':'softr.io','Retool':'retool.com','Zapier':'zapier.com','Make':'make.com','n8n':'n8n.io',
+    'ChatGPT':'openai.com','Claude':'anthropic.com','Gemini':'gemini.google.com','Perplexity':'perplexity.ai','Midjourney':'midjourney.com','Runway':'runwayml.com','ElevenLabs':'elevenlabs.io','LangChain':'langchain.com','LlamaIndex':'llamaindex.ai','Hugging Face':'huggingface.co','Replicate':'replicate.com','Pinecone':'pinecone.io','OpenRouter':'openrouter.ai',
+    'Tableau':'tableau.com','Power BI':'powerbi.microsoft.com','Looker':'looker.com','Metabase':'metabase.com','BigQuery':'cloud.google.com','Snowflake':'snowflake.com','Databricks':'databricks.com','Jupyter':'jupyter.org','Kaggle':'kaggle.com','dbt':'getdbt.com','Amplitude':'amplitude.com','Mixpanel':'mixpanel.com',
+    'HubSpot':'hubspot.com','Mailchimp':'mailchimp.com','ConvertKit':'convertkit.com','Beehiiv':'beehiiv.com','Buffer':'buffer.com','Hootsuite':'hootsuite.com','Typeform':'typeform.com','Tally':'tally.so','Google Analytics':'analytics.google.com','Hotjar':'hotjar.com','Ahrefs':'ahrefs.com','SEMrush':'semrush.com',
+    'CapCut':'capcut.com','Premiere Pro':'adobe.com','After Effects':'adobe.com','DaVinci Resolve':'blackmagicdesign.com','Final Cut':'apple.com','Descript':'descript.com','OBS':'obsproject.com','Loom':'loom.com','Riverside':'riverside.fm','Figma Slides':'figma.com',
+    'Slack':'slack.com','Discord':'discord.com','Teams':'microsoft.com','Zoom':'zoom.us','Google Meet':'meet.google.com','Calendly':'calendly.com','Asana':'asana.com','Trello':'trello.com','Jira':'atlassian.com','ClickUp':'clickup.com','Monday':'monday.com','Dropbox':'dropbox.com','Drive':'drive.google.com',
+    'Shopify':'shopify.com','Stripe':'stripe.com','Gumroad':'gumroad.com','Lemon Squeezy':'lemonsqueezy.com','Webflow Ecommerce':'webflow.com','WooCommerce':'woocommerce.com','Square':'squareup.com',
+    'Blender':'blender.org','Unity':'unity.com','Unreal':'unrealengine.com','Three.js':'threejs.org','Rive':'rive.app','ProtoPie':'protopie.io','Principle':'principleformac.com'
+};
+
+function saveFounderState(){
+    localStorage.setItem('founderTools', JSON.stringify([...selectedTools]));
+    localStorage.setItem('currentMatchIndex', String(currentMatchIndex));
+    localStorage.setItem('savedMatches', JSON.stringify(savedMatches));
+    localStorage.setItem('founderToolSort', toolSortMode);
+    localStorage.setItem('founderMatchSort', matchSortMode);
+}
+
+function toolInitials(name){
+    return name
+        .replace(/\+/g,' plus ')
+        .split(/\s+/)
+        .filter(Boolean)
+        .slice(0,2)
+        .map(part => part[0])
+        .join('')
+        .toUpperCase();
+}
+
+function swapToolLogo(img, domain, initials){
+    if(domain && img.dataset.fallback !== 'favicon'){
+        img.dataset.fallback = 'favicon';
+        img.src = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+        return;
+    }
+
+    const mark = img.parentElement;
+    img.remove();
+    if(mark && !mark.querySelector('span')){
+        const fallback = document.createElement('span');
+        fallback.textContent = initials;
+        mark.appendChild(fallback);
+    }
+}
+
+function toolLogoMarkup(toolName){
+    const slug = toolLogoSlugs[toolName];
+    const domain = toolLogoDomains[toolName] || '';
+    const initials = toolInitials(toolName);
+    const fallback = `swapToolLogo(this,'${domain}','${initials}')`;
+    if(!slug && domain) return `<img src="https://www.google.com/s2/favicons?domain=${domain}&sz=64" alt="" loading="lazy" onerror="${fallback}">`;
+    if(!slug) return `<span>${initials}</span>`;
+    return `<img src="https://cdn.simpleicons.org/${slug}" alt="" loading="lazy" onerror="${fallback}">`;
+}
+
+async function syncFounderProfile(){
+    try{
+        await fetch('/api/founder/profile', {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({tools:[...selectedTools]})
+        });
+    }catch{}
+}
+
+async function loadFounderProfiles(){
+    if(founderProfilesLoading) return;
+    founderProfilesLoading = true;
+    renderMatchCard();
+    try{
+        await syncFounderProfile();
+        const res = await fetch('/api/founder/matches');
+        const data = await res.json();
+        founderProfiles = Array.isArray(data.matches) ? data.matches : [];
+        founderProfilesLoaded = true;
+    }catch{
+        founderProfiles = [];
+        founderProfilesLoaded = true;
+    }finally{
+        founderProfilesLoading = false;
+        renderMatchCard();
+        renderMatchQueue();
+    }
+}
+
+function renderFounderMatch(){
+    wireFounderSortControls();
+    renderToolFilters();
+    renderToolGrid();
+    renderMatchCard();
+    renderMatchQueue();
+    if(!founderProfilesLoaded && !founderProfilesLoading) loadFounderProfiles();
+}
+
+function wireFounderSortControls(){
+    const toolSort = document.getElementById('toolSort');
+    if(toolSort){
+        toolSort.value = toolSortMode;
+        toolSort.onchange = () => {
+            toolSortMode = toolSort.value;
+            saveFounderState();
+            renderToolGrid();
+        };
+    }
+
+    const matchSort = document.getElementById('matchSort');
+    if(matchSort){
+        matchSort.value = matchSortMode;
+        matchSort.onchange = () => {
+            matchSortMode = matchSort.value;
+            currentMatchIndex = 0;
+            saveFounderState();
+            renderMatchCard();
+        };
+    }
+}
+
+function renderToolFilters(){
+    const wrap = document.getElementById('toolFilters');
+    if(!wrap) return;
+    wrap.innerHTML = '';
+    toolCategories.forEach(category => {
+        const btn = document.createElement('button');
+        btn.className = `founder-filter ${activeToolCategory === category ? 'active' : ''}`;
+        btn.type = 'button';
+        btn.textContent = category;
+        btn.onclick = () => {
+            activeToolCategory = category;
+            renderFounderMatch();
+        };
+        wrap.appendChild(btn);
+    });
+}
+
+function renderToolGrid(){
+    const grid = document.getElementById('toolGrid');
+    const count = document.getElementById('toolCount');
+    if(!grid || !count) return;
+    const tools = activeToolCategory === 'All'
+        ? [...creatorTools]
+        : creatorTools.filter(tool => tool.category === activeToolCategory);
+    if(toolSortMode === 'az'){
+        tools.sort((a,b) => a.name.localeCompare(b.name));
+    }else if(toolSortMode === 'picked'){
+        tools.sort((a,b) => Number(selectedTools.has(b.name)) - Number(selectedTools.has(a.name)) || a.name.localeCompare(b.name));
+    }
+    grid.innerHTML = '';
+    count.textContent = `${selectedTools.size} picked`;
+
+    tools.forEach(tool => {
+        const tile = document.createElement('button');
+        tile.className = `app-tile ${selectedTools.has(tool.name) ? 'selected' : ''}`;
+        tile.type = 'button';
+        tile.innerHTML = `
+            <div class="app-mark">${toolLogoMarkup(tool.name)}</div>
+            <div class="app-name">${tool.name}</div>
+            <div class="app-cat">${tool.category}</div>
+        `;
+        tile.onclick = () => {
+            selectedTools.has(tool.name) ? selectedTools.delete(tool.name) : selectedTools.add(tool.name);
+            saveFounderState();
+            syncFounderProfile();
+            renderFounderMatch();
+        };
+        grid.appendChild(tile);
+    });
+}
+
+function scoreProfile(profile){
+    const selected = [...selectedTools];
+    const overlap = profile.skills.filter(skill => selected.includes(skill)).length;
+    const categorySet = new Set(selected.map(name => creatorTools.find(tool => tool.name === name)?.category).filter(Boolean));
+    const profileCategories = new Set(profile.skills.map(skill => creatorTools.find(tool => tool.name === skill)?.category).filter(Boolean));
+    const selectedGaps = ['Design','Code','AI','Marketing','Ops','Data'].filter(category => !categorySet.has(category));
+    const fillsYourGap = selectedGaps.filter(category => profileCategories.has(category)).length;
+    const fillsTheirGap = (profile.looking || []).filter(category => categorySet.has(category)).length;
+    const goalText = `${overallGoalText?.innerText || ''} ${weeklyGoalText?.innerText || ''} ${monthlyGoalText?.innerText || ''}`.toLowerCase();
+    const matchesCompanyNeed = (profile.focus || []).filter(word => goalText.includes(word)).length;
+    const usefulCategory = profile.skills
+        .map(skill => creatorTools.find(tool => tool.name === skill)?.category)
+        .filter(Boolean)
+        .filter(category => {
+            if(goalText.includes('prototype') || goalText.includes('mvp') || goalText.includes('demo')) return ['Code','AI','Design','No-code','3D'].includes(category);
+            if(goalText.includes('customer') || goalText.includes('sales') || goalText.includes('mrr') || goalText.includes('launch')) return ['Marketing','Data','Ops','Commerce'].includes(category);
+            return ['Code','AI','Design','Marketing'].includes(category);
+        }).length;
+    return Math.min(98, 46 + overlap * 6 + fillsYourGap * 9 + fillsTheirGap * 5 + matchesCompanyNeed * 4 + Math.min(usefulCategory, 3) * 3);
+}
+
+function overlapScore(profile){
+    const selected = [...selectedTools];
+    return profile.skills.filter(skill => selected.includes(skill)).length;
+}
+
+function getOrderedFounderProfiles(){
+    return [...founderProfiles].sort((a,b) => {
+        if(matchSortMode === 'overlap') return overlapScore(b) - overlapScore(a) || scoreProfile(b) - scoreProfile(a);
+        if(matchSortMode === 'newest') return String(b.updatedAt || '').localeCompare(String(a.updatedAt || '')) || scoreProfile(b) - scoreProfile(a);
+        return scoreProfile(b) - scoreProfile(a);
+    });
+}
+
+function renderMatchCard(){
+    const card = document.getElementById('matchCard');
+    if(!card) return;
+    if(founderProfilesLoading){
+        card.innerHTML = `
+            <div class="match-top">
+                <div class="match-avatar">FM</div>
+                <div>
+                    <div class="match-name">Finding real founders</div>
+                    <div class="match-role">Checking people on this app</div>
+                </div>
+            </div>
+            <div class="match-line">One sec. Checking founder profiles from the app.</div>
+        `;
+        return;
+    }
+    if(!founderProfiles.length){
+        card.innerHTML = `
+            <div class="match-top">
+                <div class="match-avatar">FM</div>
+                <div>
+                    <div class="match-name">No matches yet</div>
+                    <div class="match-role">Needs real users first</div>
+                </div>
+            </div>
+            <div class="match-line">You’re the only founder with tool DNA set up rn. Pick your tools here and new founders will show up when they join.</div>
+        `;
+        return;
+    }
+    const ordered = getOrderedFounderProfiles();
+    const profile = ordered[currentMatchIndex % ordered.length];
+    const score = scoreProfile(profile);
+    card.innerHTML = `
+        <div class="match-top">
+            <div class="match-avatar">${profile.name.split(' ').map(part => part[0]).join('')}</div>
+            <div>
+                <div class="match-name">${profile.name}</div>
+                <div class="match-role">${profile.role}</div>
+            </div>
+            <div class="match-score">${score}% fit</div>
+        </div>
+        <div class="match-line">${profile.fit}</div>
+        <div class="match-line">${profile.need}</div>
+        <div class="match-tags">${profile.skills.length ? profile.skills.map(skill => `<span class="match-tag">${skill}</span>`).join('') : '<span class="match-tag">No tools picked yet</span>'}</div>
+        <div class="match-tags">${(profile.looking || []).map(skill => `<span class="match-tag">needs ${skill}</span>`).join('')}</div>
+        <div class="match-actions">
+            <button class="match-secondary" type="button" onclick="skipFounderMatch()">Pass</button>
+            <button class="match-secondary" type="button" onclick="saveFounderMatch()">Save</button>
+            <button class="match-primary" type="button" onclick="draftFounderIntro()">DM draft</button>
+        </div>
+    `;
+}
+
+function skipFounderMatch(){
+    currentMatchIndex += 1;
+    saveFounderState();
+    renderMatchCard();
+}
+
+function saveFounderMatch(){
+    if(!founderProfiles.length) return;
+    const ordered = getOrderedFounderProfiles();
+    const profile = ordered[currentMatchIndex % ordered.length];
+    if(!savedMatches.find(match => match.id === profile.id)){
+        savedMatches.push({id:profile.id, name:profile.name, role:profile.role, score:scoreProfile(profile)});
+    }
+    skipFounderMatch();
+    renderMatchQueue();
+}
+
+function draftFounderIntro(){
+    if(!founderProfiles.length) return;
+    const ordered = getOrderedFounderProfiles();
+    const profile = ordered[currentMatchIndex % ordered.length];
+    switchView('chat');
+    messageInput.value = `Write a short DM to ${profile.name} about teaming up on Nodex. Keep it chill and direct.`;
+    messageInput.focus();
+}
+
+function renderMatchQueue(){
+    const queue = document.getElementById('matchQueue');
+    if(!queue) return;
+    const realSaved = savedMatches.filter(match => match.id);
+    if(realSaved.length !== savedMatches.length){
+        savedMatches = realSaved;
+        saveFounderState();
+    }
+    if(!realSaved.length){
+        queue.innerHTML = '<div class="queue-item"><span>No saved real matches yet.</span><span>Wait for users</span></div>';
+        return;
+    }
+    queue.innerHTML = realSaved.slice(-5).reverse().map(match => `
+        <div class="queue-item">
+            <span>${match.name} - ${match.role}</span>
+            <strong>${match.score}%</strong>
+        </div>
+    `).join('');
+}
+
+const defaultGoalsState = {
+    overallGoal:'By this time next year, The Daily Loaf will have a validated local bakery concept with 100+ interested customers, a tested starter menu, and a clear launch path.',
+    weeklyGoal:'This week, choose the first bakery format, draft the starter menu, and talk to 10 possible customers.',
+    monthlyGoal:'This month, prove demand with a simple offer, 50 interested local customers, and at least one test sale or tasting event.',
+    people:[
+        {
+            name:'You',
+            role:'Founder',
+            task:'Decide the first bakery format',
+            detail:'Pick pop-up, delivery, farmers market, or storefront as the first version.',
+            status:'Today'
+        },
+        {
+            name:'AI Cofounder',
+            role:'Strategy',
+            task:'Turn the idea into a plan',
+            detail:'Keep goals, tasks, and decisions organized as the company changes.',
+            status:'Now'
+        }
+    ]
+};
+
+let goalsState = loadGoalsState();
+let launchMapState = loadJSONState('launchMapState', null);
+let selectedLaunchMapNodes = new Set();
+
+function loadJSONState(key, fallback){
+    const raw = localStorage.getItem(key);
+    if(!raw) return fallback;
+    try{
+        return JSON.parse(raw);
+    }catch{
+        return fallback;
+    }
+}
+
+function loadGoalsState(){
+    const saved = localStorage.getItem('goalsState');
+    if(!saved) return defaultGoalsState;
+
+    try{
+        return JSON.parse(saved);
+    }catch{
+        return defaultGoalsState;
+    }
+}
+
+function saveGoalsState(){
+    localStorage.setItem('goalsState', JSON.stringify(goalsState));
+}
+
+function saveLaunchMapState(){
+    localStorage.setItem('launchMapState', JSON.stringify(launchMapState || {}));
+}
+
+function buildMapCard(node, isRoot = false){
+    const card = document.createElement('div');
+    card.className = `map-node ${isRoot ? 'root' : ''}`;
+    const title = document.createElement('strong');
+    title.textContent = node.title || 'Untitled';
+    const detail = document.createElement('p');
+    detail.textContent = node.detail || '';
+    card.appendChild(title);
+    card.appendChild(detail);
+    return card;
+}
+
+function renderMindMap(containerId, map, selectionSet){
+    const wrap = document.getElementById(containerId);
+    if(!wrap) return;
+    wrap.innerHTML = '';
+    if(!map || !Array.isArray(map.lanes) || !map.lanes.length){
+        wrap.innerHTML = '<div class="map-empty">No map yet. Generate one with AI.</div>';
+        return;
+    }
+    const root = document.createElement('div');
+    root.className = 'mindmap-root';
+    root.appendChild(buildMapCard({title: map.title || 'Plan', detail: map.subtitle || ''}, true));
+    wrap.appendChild(root);
+
+    const lanes = document.createElement('div');
+    lanes.className = 'map-lanes';
+    map.lanes.forEach((lane, laneIndex) => {
+        const col = document.createElement('div');
+        col.className = 'map-lane';
+        const h = document.createElement('h4');
+        h.textContent = lane.name || 'Lane';
+        col.appendChild(h);
+        (lane.nodes || []).forEach((node, nodeIndex) => {
+            const id = `${laneIndex}:${nodeIndex}`;
+            const card = buildMapCard(node);
+            card.classList.add('selectable');
+            card.dataset.mapNodeId = id;
+            if(selectionSet && selectionSet.has(id)){
+                card.classList.add('selected');
+            }
+            card.onclick = () => {
+                if(!selectionSet) return;
+                if(selectionSet.has(id)) selectionSet.delete(id);
+                else selectionSet.add(id);
+                card.classList.toggle('selected', selectionSet.has(id));
+                updateReplyContextBar();
+            };
+            col.appendChild(card);
+        });
+        lanes.appendChild(col);
+    });
+    wrap.appendChild(lanes);
+    drawMindMapConnectors(wrap);
+}
+
+function drawMindMapConnectors(wrap){
+    const old = wrap.querySelector('.mindmap-svg');
+    if(old) old.remove();
+    const root = wrap.querySelector('.mindmap-root .map-node.root');
+    const nodes = [...wrap.querySelectorAll('.map-lane .map-node')];
+    if(!root || !nodes.length) return;
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(svgNS, 'svg');
+    svg.setAttribute('class', 'mindmap-svg');
+    nodes.forEach(node => {
+        const a = root.getBoundingClientRect();
+        const b = node.getBoundingClientRect();
+        const p = wrap.getBoundingClientRect();
+        const x1 = a.left + a.width / 2 - p.left;
+        const y1 = a.bottom - p.top;
+        const x2 = b.left + b.width / 2 - p.left;
+        const y2 = b.top - p.top;
+        const c1x = x1;
+        const c1y = y1 + (y2 - y1) * 0.35;
+        const c2x = x2;
+        const c2y = y1 + (y2 - y1) * 0.65;
+        const path = document.createElementNS(svgNS, 'path');
+        path.setAttribute('class', 'map-connector');
+        path.setAttribute('d', `M ${x1} ${y1} C ${c1x} ${c1y}, ${c2x} ${c2y}, ${x2} ${y2}`);
+        svg.appendChild(path);
+    });
+    wrap.appendChild(svg);
+}
+
+function renderLaunchMap(){
+    renderMindMap('launchMindMap', launchMapState, selectedLaunchMapNodes);
+}
+
+async function generateMindMap(kind, context, button){
+    const original = button.innerText;
+    button.disabled = true;
+    button.innerText = 'Designing map...';
+    try{
+        const response = await fetch('/api/generate-map', {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({kind, context})
+        });
+        const data = await response.json();
+        if(!data.ok || !data.map) return;
+        if(kind === 'goals'){
+            return;
+        }else{
+            launchMapState = data.map;
+            saveLaunchMapState();
+            renderLaunchMap();
+            switchView('launch');
+        }
+    }finally{
+        button.disabled = false;
+        button.innerText = original;
+    }
+}
+
+function generateLaunchMap(){
+    const context = {
+        goals: goalsState,
+        notes: 'Build an execution-first launch plan with clear sequencing and owners.'
+    };
+    generateMindMap('launch', context, launchMapButton);
+}
+
+function resetLaunchMap(){
+    launchMapState = null;
+    selectedLaunchMapNodes.clear();
+    saveLaunchMapState();
+    renderLaunchMap();
+    updateReplyContextBar();
+}
+
+function selectedMapNodeTexts(map, setRef){
+    if(!map || !Array.isArray(map.lanes)) return [];
+    const out = [];
+    setRef.forEach(id => {
+        const [laneIdxRaw, nodeIdxRaw] = id.split(':');
+        const lane = map.lanes[Number(laneIdxRaw)];
+        const node = lane?.nodes?.[Number(nodeIdxRaw)];
+        if(node) out.push(`${lane.name || 'Lane'} -> ${node.title}: ${node.detail || ''}`.trim());
+    });
+    return out;
+}
+
+function getReplyContextPayload(){
+    const selectedMessages = getSelected().map(el => {
+        const textEl = el.querySelector('.message-text');
+        return textEl ? textEl.innerText.trim() : '';
+    }).filter(Boolean);
+    return {
+        selectedMessages,
+        goalNodes: [],
+        launchNodes: selectedMapNodeTexts(launchMapState, selectedLaunchMapNodes)
+    };
+}
+
+function updateReplyContextBar(){
+    const bar = document.getElementById('replyContextBar');
+    const text = document.getElementById('replyContextText');
+    if(!bar || !text) return;
+    const ctx = getReplyContextPayload();
+    const total = ctx.selectedMessages.length + ctx.goalNodes.length + ctx.launchNodes.length;
+    if(total <= 0){
+        bar.classList.remove('active');
+        return;
+    }
+    text.textContent = `Reply with ${ctx.selectedMessages.length} msg, ${ctx.goalNodes.length} goal node, ${ctx.launchNodes.length} launch node`;
+    bar.classList.add('active');
+}
+
+function clearReplyContext(){
+    clearSelection();
+    selectedLaunchMapNodes.clear();
+    renderLaunchMap();
+    updateReplyContextBar();
+}
+
+function renderGoals(){
+    overallGoalText.innerText = goalsState.overallGoal;
+    weeklyGoalText.innerText = goalsState.weeklyGoal || 'Set one clear company goal for this week.';
+    monthlyGoalText.innerText = goalsState.monthlyGoal || 'Set one clear company goal for this month.';
+    overallGoalText.onclick = () => startGoalEdit('overallGoal');
+    weeklyGoalText.onclick = () => startGoalEdit('weeklyGoal');
+    monthlyGoalText.onclick = () => startGoalEdit('monthlyGoal');
+    teamTasksList.innerHTML = '';
+
+    const header = document.createElement('div');
+    header.className = 'team-row header';
+    header.innerHTML = '<div>Person</div><div>This Week</div><div>Status</div><div>Actions</div>';
+    teamTasksList.appendChild(header);
+
+    goalsState.people.forEach((person, index) => {
+        const row = document.createElement('div');
+        row.className = 'team-row';
+        row.innerHTML = `
+            <div class="team-person">
+                <input value="${escapeHtml(person.name)}" data-field="name" data-index="${index}" aria-label="Person name">
+                <input value="${escapeHtml(person.role)}" data-field="role" data-index="${index}" aria-label="Person role">
+            </div>
+            <div class="team-task">
+                <input value="${escapeHtml(person.task)}" data-field="task" data-index="${index}" aria-label="Person task">
+                <input value="${escapeHtml(person.detail)}" data-field="detail" data-index="${index}" aria-label="Task detail">
+            </div>
+            <input value="${escapeHtml(person.status)}" data-field="status" data-index="${index}" aria-label="Task status">
+            <div class="team-actions">
+                <button class="mini-btn" onclick="savePerson(${index})">Save</button>
+                <button class="mini-btn danger-btn" onclick="deletePerson(${index})">Delete</button>
+            </div>
+        `;
+        teamTasksList.appendChild(row);
+    });
+
+    peopleCount.innerText = goalsState.people.length;
+}
+
+function addPerson(){
+    const name = personNameInput.value.trim();
+    const role = personRoleInput.value.trim() || 'Teammate';
+
+    if(!name) return;
+
+    goalsState.people.push({
+        name,
+        role,
+        task:'Waiting for assignment',
+        detail:'Ask the AI to assign next tasks when this person is ready.',
+        status:'Unassigned'
+    });
+
+    personNameInput.value = '';
+    personRoleInput.value = '';
+    saveGoalsState();
+    renderGoals();
+}
+
+function savePerson(index){
+    const fields = document.querySelectorAll(`[data-index="${index}"]`);
+
+    fields.forEach(field => {
+        goalsState.people[index][field.dataset.field] = field.value.trim();
+    });
+
+    saveGoalsState();
+    renderGoals();
+}
+
+function getGoalElement(field){
+    if(field === 'overallGoal') return overallGoalText;
+    if(field === 'weeklyGoal') return weeklyGoalText;
+    return monthlyGoalText;
+}
+
+function startGoalEdit(field){
+    const element = getGoalElement(field);
+    const currentValue = goalsState[field] || '';
+
+    element.onclick = null;
+    element.innerHTML = '';
+
+    const editor = document.createElement('div');
+    editor.className = 'inline-editor';
+
+    const input = document.createElement('input');
+    input.value = currentValue;
+
+    const saveButton = document.createElement('button');
+    saveButton.type = 'button';
+    saveButton.innerText = 'Save';
+
+    function save(){
+        const value = input.value.trim();
+
+        if(value){
+            goalsState[field] = value;
+            saveGoalsState();
+        }
+
+        renderGoals();
+    }
+
+    input.addEventListener('click', event => {
+        event.stopPropagation();
+    });
+
+    input.addEventListener('keydown', event => {
+        if(event.key === 'Enter'){
+            event.preventDefault();
+            save();
+        }
+
+        if(event.key === 'Escape'){
+            event.preventDefault();
+            renderGoals();
+        }
+    });
+
+    saveButton.addEventListener('click', event => {
+        event.preventDefault();
+        event.stopPropagation();
+        save();
+    });
+
+    editor.appendChild(input);
+    editor.appendChild(saveButton);
+    element.appendChild(editor);
+    input.focus();
+    input.select();
+}
+
+function deletePerson(index){
+    goalsState.people.splice(index, 1);
+    saveGoalsState();
+    renderGoals();
+}
+
+function applyGoalUpdate(update){
+    goalsState = {
+        overallGoal: update.overallGoal || goalsState.overallGoal,
+        weeklyGoal: update.weeklyGoal || goalsState.weeklyGoal,
+        monthlyGoal: update.monthlyGoal || goalsState.monthlyGoal,
+        people: Array.isArray(update.people) ? update.people : goalsState.people
+    };
+
+    saveGoalsState();
+    renderGoals();
+}
+
+function getBlankGoalsState(){
+    return {
+        overallGoal:'No company goal set yet.',
+        weeklyGoal:'No weekly goal set yet.',
+        monthlyGoal:'No monthly goal set yet.',
+        people:[
+            {
+                name:'You',
+                role:'Founder',
+                task:'Set the company direction',
+                detail:'Use chat or the Set button to define what the company is trying to do.',
+                status:'Today'
+            },
+            {
+                name:'AI Cofounder',
+                role:'Strategy',
+                task:'Help set goals',
+                detail:'Ask the user one useful question, then turn the answer into a goal board.',
+                status:'Now'
+            }
+        ]
+    };
+}
+
+function clearGoalsBoard(){
+    goalsState = getBlankGoalsState();
+    saveGoalsState();
+    renderGoals();
+}
+
+function applyAppCommand(command){
+    if(!command || !command.action) return false;
+
+    if(command.action === 'goal_update'){
+        applyGoalUpdate(command.payload || command);
+        return true;
+    }
+
+    if(command.action === 'goal_clear'){
+        clearGoalsBoard();
+        return true;
+    }
+
+    return false;
+}
+
+function extractAppCommand(text){
+    const tagMatch = text.match(/<app_command>\s*([\s\S]*?)\s*<\/app_command>/i);
+    const fenceMatch = text.match(/```(?:app_command|goal_update)\s*([\s\S]*?)```/i);
+    const rawMatch = text.match(/\{[\s\S]*?"action"\s*:\s*"goal_(?:update|clear)"[\s\S]*\}\s*$/i);
+    const match = tagMatch || fenceMatch || rawMatch;
+
+    if(!match){
+        return {displayText:text, command:null};
+    }
+
+    let command = null;
+    try{
+        const parsed = JSON.parse((match[1] || match[0]).trim());
+        command = parsed.action ? parsed : {action:'goal_update', payload:parsed};
+    }catch{
+        command = null;
+    }
+
+    return {
+        displayText:text.replace(match[0], '').trim(),
+        command
+    };
+}
+
+function cleanChatText(text){
+    return String(text || '')
+        .replace(/```(?:json|goal_update|app_command)?\s*\{[\s\S]*?"action"\s*:\s*"goal_(?:update|clear)"[\s\S]*?\}\s*```/gi, '')
+        .replace(/\{[\s\S]*?"action"\s*:\s*"goal_(?:update|clear)"[\s\S]*\}\s*$/gi, '')
+        .replace(/(?:<\|?\s*)?(?:start|end)_header_id(?:\s*\|?>)?/gi, '')
+        .replace(/\bend_header_id\|end_header_id\b/gi, '')
+        .replace(/<\s*\/?\s*(?:app_command)?\s*>?/gi, '')
+        .replace(/^\s*<\/\s*$/gm, '')
+        .replace(/^\s*(App Update|Goal Update|Your turn!?|I'll update the app\.?)\s*$/gim, '')
+        .replace(/\n{3,}/g, '\n\n')
+        .trim();
+}
+
+function handleLocalCommand(message){
+    const lower = message.toLowerCase();
+
+        if(lower.includes('clear') && lower.includes('goal')){
+        addMessage('I can read Goals here, but I won’t change them from chat anymore. Use the Goals page button for edits.', 'ai', ['Goals']);
+        return true;
+    }
+
+    return false;
+}
+
+function escapeHtml(value){
+    return String(value)
+        .replaceAll('&','&amp;')
+        .replaceAll('<','&lt;')
+        .replaceAll('>','&gt;')
+        .replaceAll('"','&quot;')
+        .replaceAll("'","&#039;");
+}
+
+function sendPrompt(prompt){
+    switchView('chat');
+    messageInput.value = prompt;
+    sendMessage();
+}
+
+async function runGoalAi(prompt, button){
+    const originalText = button.innerText;
+    button.disabled = true;
+    button.innerText = 'Working...';
+
+    try{
+        const response = await fetch('/chat', {
+            method:'POST',
+            headers:{
+                'Content-Type':'application/json'
+            },
+            body:JSON.stringify({message:prompt, goalsState, allowGoalWrites:true})
+        });
+
+        const data = await response.json();
+        const parsed = extractAppCommand(data.response || '');
+
+        if(parsed.command){
+            applyAppCommand(parsed.command);
+        }
+
+        switchView('goals');
+    }finally{
+        button.disabled = false;
+        button.innerText = originalText;
+    }
+}
+
+function askGoalSetup(){
+    runGoalAi(
+        'Set up the goals page for this company. Make the overall goal a realistic 1-year company goal in this format: By [timeframe], we will have [measurable outcome] by [strategy/customer/product]. Then create one measurable monthly milestone, one measurable weekly goal, and a one-week task chart for each person. Update the app.',
+        goalSetupButton
+    );
+}
+
+function askExecutionPlan(){
+    runGoalAi(
+        'Assign this week of work for the team. Keep the 1-year overall goal, monthly milestone, and weekly goal connected. Give each person one concrete task that directly supports this week’s goal. Update the app.',
+        assignWeekButton
+    );
+}
+
+function formatTime(date = new Date()){
+    return date.toLocaleTimeString([], {
+        hour:'numeric',
+        minute:'2-digit'
+    });
+}
+
+function viewForTool(tool){
+    const key = String(tool || '').toLowerCase();
+    if(key.includes('memory')) return 'memory';
+    if(key.includes('goal')) return 'goals';
+    if(key.includes('launch')) return 'launch';
+    if(key.includes('council')) return 'council';
+    return 'chat';
+}
+
+function createToolTrace(tools){
+    if(!Array.isArray(tools) || !tools.length) return null;
+
+    const toolTrace = document.createElement('div');
+    toolTrace.className = 'tool-trace';
+    const label = document.createElement('span');
+    label.textContent = 'Used';
+    toolTrace.appendChild(label);
+
+    [...new Set(tools)].forEach(tool => {
+        const chip = document.createElement('button');
+        chip.className = 'tool-chip';
+        chip.type = 'button';
+        chip.title = `Open ${tool}`;
+        chip.innerHTML = `<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="4"/><path d="M6 3.5v2.8l1.8 1.1"/></svg>`;
+        chip.appendChild(document.createTextNode(tool));
+        chip.onclick = (e) => {
+            e.stopPropagation();
+            switchView(viewForTool(tool));
+        };
+        toolTrace.appendChild(chip);
+    });
+
+    return toolTrace;
+}
+
+function createActivityMessage(text, tools = [], title = 'App update'){
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message activity';
+
+    const innerDiv = document.createElement('div');
+    innerDiv.className = 'message-inner';
+
+    const card = document.createElement('details');
+    card.className = 'activity-card';
+
+    const summary = document.createElement('summary');
+    const titleSpan = document.createElement('span');
+    titleSpan.className = 'activity-title';
+    titleSpan.innerHTML = '<span class="activity-dot"></span>';
+    titleSpan.appendChild(document.createTextNode(title));
+
+    const timeSpan = document.createElement('span');
+    timeSpan.textContent = formatTime();
+
+    summary.appendChild(titleSpan);
+    summary.appendChild(timeSpan);
+    card.appendChild(summary);
+
+    const body = document.createElement('div');
+    body.className = 'activity-body';
+    body.appendChild(formatMessageText(text));
+    card.appendChild(body);
+
+    const toolTrace = createToolTrace(tools);
+    if(toolTrace){
+        body.appendChild(toolTrace);
+    }
+
+    innerDiv.appendChild(card);
+    messageDiv.appendChild(innerDiv);
+    return messageDiv;
+}
+
+function createMessage(text, type, tools = []){
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${type}`;
+    if(text.length <= 42 && !text.includes('\n')){
+        messageDiv.classList.add('compact');
+    }
+
+    const innerDiv = document.createElement('div');
+    innerDiv.className = 'message-inner';
+
+    const textDiv = document.createElement('div');
+    textDiv.className = 'message-text';
+    textDiv.appendChild(formatMessageText(text));
+    if(type === 'ai'){
+        prepareReadableText(textDiv);
+    }
+
+    const metaDiv = document.createElement('div');
+    metaDiv.className = 'message-meta';
+
+    const timeSpan = document.createElement('span');
+    timeSpan.innerText = formatTime();
+
+    // ── select checkbox ──
+    const checkDiv = document.createElement('div');
+    checkDiv.className = 'select-check';
+    checkDiv.title = 'Select message';
+    checkDiv.innerHTML = `<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9 10.5,3"/></svg>`;
+    checkDiv.onclick = (e) => { e.stopPropagation(); toggleSelectMessage(messageDiv); };
+
+    // ── action buttons ──
+    const actionsDiv = document.createElement('div');
+    actionsDiv.className = 'message-actions';
+
+    // Copy button
+    const copyButton = document.createElement('button');
+    copyButton.className = 'icon-btn icon-btn-copy';
+    copyButton.type = 'button';
+    copyButton.title = 'Copy message';
+    copyButton.innerHTML = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="9" height="11" rx="2"/><path d="M4 4V3a1 1 0 0 1 1-1h7a2 2 0 0 1 2 2v9a1 1 0 0 1-1 1h-1"/></svg>`;
+    copyButton.onclick = async (e) => {
+        e.stopPropagation();
+        await copyText(text);
+        copyButton.classList.add('copied');
+        copyButton.innerHTML = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,8 6,12 14,4"/></svg>`;
+        copyButton.title = 'Copied!';
+        setTimeout(() => {
+            copyButton.classList.remove('copied');
+            copyButton.innerHTML = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="9" height="11" rx="2"/><path d="M4 4V3a1 1 0 0 1 1-1h7a2 2 0 0 1 2 2v9a1 1 0 0 1-1 1h-1"/></svg>`;
+            copyButton.title = 'Copy message';
+        }, 1400);
+    };
+
+    // Delete button
+    const deleteButton = document.createElement('button');
+    deleteButton.className = 'icon-btn icon-btn-delete';
+    deleteButton.type = 'button';
+    deleteButton.title = 'Delete message';
+    deleteButton.innerHTML = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,4 14,4"/><path d="M5 4V2h6v2"/><rect x="3" y="4" width="10" height="10" rx="1.5"/><line x1="6" y1="7" x2="6" y2="11"/><line x1="10" y1="7" x2="10" y2="11"/></svg>`;
+    deleteButton.onclick = (e) => { e.stopPropagation(); removeMessage(messageDiv); };
+
+    actionsDiv.appendChild(copyButton);
+    actionsDiv.appendChild(deleteButton);
+    metaDiv.appendChild(timeSpan);
+    metaDiv.appendChild(actionsDiv);
+
+    innerDiv.appendChild(checkDiv);
+    innerDiv.appendChild(textDiv);
+
+    if(type === 'ai'){
+        const toolTrace = createToolTrace(tools);
+        if(toolTrace){
+        innerDiv.appendChild(toolTrace);
+        }
+    }
+
+    innerDiv.appendChild(metaDiv);
+    messageDiv.appendChild(innerDiv);
+
+    return messageDiv;
+}
+
+function formatInlineText(text){
+    const fragment = document.createDocumentFragment();
+    // Match **bold**, `code`, and [→ ViewName] nav chips
+    const NAV_RE = /\[[→\u2192]\s*([^\]]+)\]/;
+    const parts = text.split(/(\*\*[^*]+\*\*|`[^`]+`|\[[→\u2192]\s*[^\]]+\])/g);
+
+    const viewMap = { 'Goals':'goals', 'Dashboard':'chat', 'Chat':'chat', 'Memory':'memory', 'Launch Plan':'launch', 'Founder Match':'founder', 'Council':'council' };
+
+    parts.forEach(part => {
+        try{
+            if(part.startsWith('**') && part.endsWith('**')){
+                const strong = document.createElement('strong');
+                strong.innerText = part.slice(2, -2);
+                fragment.appendChild(strong);
+            }else if(part.startsWith('`') && part.endsWith('`')){
+                const code = document.createElement('code');
+                code.innerText = part.slice(1, -1);
+                fragment.appendChild(code);
+            }else if(NAV_RE.test(part)){
+                const viewName = (NAV_RE.exec(part) || [])[1]?.trim() || '';
+                const viewId = viewMap[viewName] || viewName.toLowerCase();
+                const chip = document.createElement('button');
+                chip.className = 'nav-chip';
+                chip.type = 'button';
+                chip.title = `Go to ${viewName}`;
+                chip.innerHTML = `<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6h8M7 3l3 3-3 3"/></svg>${viewName}`;
+                chip.onclick = () => switchView(viewId);
+                fragment.appendChild(chip);
+            }else{
+                fragment.appendChild(document.createTextNode(part));
+            }
+        }catch{
+            fragment.appendChild(document.createTextNode(part));
+        }
+    });
+
+    return fragment;
+}
+
+function renderCouncilMembers(items){
+    const wrap = document.getElementById('councilMembers');
+    wrap.innerHTML = '';
+    items.forEach(member => {
+        const card = document.createElement('div');
+        card.className = 'council-seat';
+        const score = Number(member.score || 0);
+        card.innerHTML = `<div class="council-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.2"></circle><path d="M5 19c1.8-3 4-4.6 7-4.6s5.2 1.6 7 4.6"></path></svg></div><div class="council-name">${escapeHtml(member.name || 'Council Member')} ${score ? `• ${score}` : ''}</div><div class="council-focus">${escapeHtml(member.focus || '')}</div><div class="council-stance">${escapeHtml(member.stance || member.feedback || 'Thinking...')}</div>`;
+        wrap.appendChild(card);
+    });
+}
+
+function renderCouncilDebate(lines){
+    const el = document.getElementById('councilDebate');
+    if(!Array.isArray(lines) || !lines.length){
+        el.style.display = 'none';
+        return;
+    }
+    el.style.display = 'block';
+    el.innerHTML = lines.map(item => {
+        const speaker = escapeHtml(item.speaker || 'Member');
+        const target = escapeHtml(item.target || 'All');
+        const msg = escapeHtml(item.message || '');
+        return `<div class="debate-line"><strong>${speaker}</strong> -> ${target}: ${msg}</div>`;
+    }).join('');
+}
+
+function renderCouncilMetrics(metrics = {}, nextSteps = []){
+    const el = document.getElementById('councilMetrics');
+    const rows = [
+        ['Viability', Number(metrics.viability || 0)],
+        ['Execution Ease', Number(metrics.executionEase || 0)],
+        ['Market Pull', Number(metrics.marketPull || 0)],
+        ['Risk Level', Number(metrics.riskLevel || 0)]
+    ];
+    el.style.display = 'grid';
+    el.innerHTML = rows.map(([label, value]) => `
+        <div class="metric-card">
+            <div class="mission-label">${escapeHtml(label)} • ${value}</div>
+            <div class="bar"><span style="width:${Math.max(0, Math.min(100, value))}%"></span></div>
+        </div>
+    `).join('') + `
+        <div class="metric-card" style="grid-column:1/-1;">
+            <div class="mission-label">Next steps</div>
+            <p>${escapeHtml((nextSteps || []).join(' • ') || 'No next steps yet.')}</p>
+        </div>
+    `;
+}
+
+function renderCouncilBusinessPack(startup = {}, kpis = [], financial = {}){
+    const el = document.getElementById('councilMetrics');
+    const needed = Number(startup.neededToStartUSD || 0).toLocaleString();
+    const runway = Number(startup.runwayMonths || 0);
+    const margin = Number(startup.profitMarginPct || 0);
+    const team = Array.isArray(startup.teamNeeded) ? startup.teamNeeded : [];
+    const assets = Array.isArray(startup.assetsNeeded) ? startup.assetsNeeded : [];
+    const kpiRows = (Array.isArray(kpis) ? kpis : []).slice(0,4).map(k => `
+        <div class="metric-card">
+            <div class="mission-label">${escapeHtml(k.name || 'KPI')} • ${Number(k.valuePct || 0)}%</div>
+            <div class="bar"><span style="width:${Math.max(0, Math.min(100, Number(k.valuePct || 0)))}%"></span></div>
+        </div>
+    `).join('');
+    const months = Array.isArray(financial.months) ? financial.months : [];
+    const rev = Array.isArray(financial.revenue) ? financial.revenue : [];
+    const costs = Array.isArray(financial.costs) ? financial.costs : [];
+    const profit = Array.isArray(financial.profit) ? financial.profit : [];
+    const points = months.map((m, i) => `${escapeHtml(m)}: Rev ${Number(rev[i] || 0).toLocaleString()} | Cost ${Number(costs[i] || 0).toLocaleString()} | Profit ${Number(profit[i] || 0).toLocaleString()}`);
+
+    el.innerHTML += `
+        <div class="metric-card"><div class="mission-label">Capital Needed</div><p>$${needed} to start • ${runway} mo runway</p></div>
+        <div class="metric-card"><div class="mission-label">Profit Margin</div><p>${margin}% expected margin</p></div>
+        <div class="metric-card" style="grid-column:1/-1;"><div class="mission-label">People Needed</div><p>${escapeHtml(team.join(' • ') || 'Founder • Operator')}</p></div>
+        <div class="metric-card" style="grid-column:1/-1;"><div class="mission-label">Assets Needed</div><p>${escapeHtml(assets.join(' • ') || 'Landing page • CRM')}</p></div>
+        ${kpiRows}
+        <div class="metric-card" style="grid-column:1/-1;">
+            <div class="mission-label">Financial Diagram (6 months)</div>
+            <p>${escapeHtml(points.join(' || ') || 'No financial projection yet.')}</p>
+        </div>
+    `;
+}
+
+async function askCouncil(){
+    const idea = String(councilIdeaInput?.value || '').trim();
+    if(!idea) return;
+    const now = Date.now();
+    if(councilInFlight) return;
+    if(idea.toLowerCase() === councilLastIdea && now - councilLastAt < 7000){
+        const thinkingFast = document.getElementById('councilThinking');
+        thinkingFast.style.display = 'block';
+        thinkingFast.textContent = 'Hold up, just ran that. Give it a few seconds.';
+        return;
+    }
+    const thinking = document.getElementById('councilThinking');
+    const summary = document.getElementById('councilSummary');
+    const debateEl = document.getElementById('councilDebate');
+    const metricsEl = document.getElementById('councilMetrics');
+    const roles = [
+        {name:'The Contrarian', focus:'Skepticism and downside risk'},
+        {name:'First Principles', focus:'Root causes and fundamentals'},
+        {name:'The Executor', focus:'Action plan and execution'},
+        {name:'Customer Advocate', focus:'Customer value and pain'},
+        {name:'Market Strategist', focus:'Positioning and distribution'}
+    ];
+    councilInFlight = true;
+    askCouncilButton.disabled = true;
+    thinking.style.display = 'block';
+    thinking.textContent = 'Council is thinking...';
+    summary.style.display = 'none';
+    debateEl.style.display = 'none';
+    metricsEl.style.display = 'none';
+    renderCouncilMembers(roles.map(r => ({...r, stance:'Thinking...'})));
+
+    try{
+        const res = await fetch('/api/council', {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({idea, goalsState})
+        });
+        const data = await res.json();
+        if(!data.ok) throw new Error(data.error || 'Council failed');
+        renderCouncilMembers(data.members || []);
+        renderCouncilDebate(data.debate || []);
+        renderCouncilMetrics(data.metrics || {}, data.nextSteps || []);
+        renderCouncilBusinessPack(data.startup || {}, data.kpis || [], data.financialDiagram || {});
+        summary.style.display = 'block';
+        summary.innerHTML = `<div class="mission-label">AI Valuation (${escapeHtml((data.provider || '').toUpperCase())}${data.model ? ` • ${escapeHtml(data.model)}` : ''})</div><div>${escapeHtml(data.chatVerdict || 'No valuation generated.')}</div>`;
+        thinking.textContent = 'Council finished.';
+    }catch(err){
+        const fallbackMembers = [
+            {name:'The Contrarian', focus:'Skepticism and downside risk', stance:'Validate demand before deeper build.', score:50},
+            {name:'First Principles', focus:'Root causes and fundamentals', stance:'Clarify core pain and buyer first.', score:55},
+            {name:'The Executor', focus:'Action plan and execution', stance:'Ship MVP and collect real usage.', score:62},
+            {name:'Customer Advocate', focus:'Customer value and pain', stance:'Tighten message and onboarding.', score:58},
+            {name:'Market Strategist', focus:'Positioning and distribution', stance:'Start with one niche segment.', score:57}
+        ];
+        renderCouncilMembers(fallbackMembers);
+        renderCouncilDebate([]);
+        renderCouncilMetrics({viability:56, executionEase:61, marketPull:52, riskLevel:63}, ['Niche customer', '10 interviews', 'Ship MVP']);
+        renderCouncilBusinessPack(
+            {neededToStartUSD:5000, runwayMonths:4, teamNeeded:['Founder','Builder'], assetsNeeded:['Landing page','CRM'], profitMarginPct:28},
+            [{name:'Lead->Paid', valuePct:12}, {name:'30d Retention', valuePct:48}, {name:'CAC Payback', valuePct:35}],
+            {months:['M1','M2','M3','M4','M5','M6'], revenue:[1000,2000,3500,5000,7000,9500], costs:[3000,3200,3600,4200,4800,5500], profit:[-2000,-1200,-100,800,2200,4000]}
+        );
+        summary.style.display = 'block';
+        summary.innerHTML = `<div class="mission-label">AI Valuation (Fallback)</div><div>Council had a format glitch, so I loaded a safe quick valuation. Try again in a few seconds for a fresh run.</div>`;
+        thinking.textContent = 'Council recovered with fallback output.';
+    }finally{
+        councilLastIdea = idea.toLowerCase();
+        councilLastAt = Date.now();
+        councilInFlight = false;
+        askCouncilButton.disabled = false;
+    }
+}
+
+function formatMessageText(text){
+    const wrapper = document.createDocumentFragment();
+    const lines = text.split('\n');
+    let list = null;
+    let listType = null;
+    let paragraph = [];
+
+    function flushParagraph(){
+        if(!paragraph.length) return;
+        const p = document.createElement('p');
+        p.appendChild(formatInlineText(paragraph.join(' ')));
+        wrapper.appendChild(p);
+        paragraph = [];
+    }
+
+    function closeList(){
+        if(list){
+            wrapper.appendChild(list);
+            list = null;
+            listType = null;
+        }
+    }
+
+    lines.forEach(rawLine => {
+        const line = rawLine.trim();
+
+        if(!line){
+            flushParagraph();
+            closeList();
+            return;
+        }
+
+        const bulletMatch = line.match(/^[-*]\s+(.+)/);
+        const numberMatch = line.match(/^\d+[.)]\s+(.+)/);
+        const headingMatch = line.match(/^#{1,3}\s+(.+)/);
+
+        if(headingMatch){
+            flushParagraph();
+            closeList();
+            const heading = document.createElement('h3');
+            heading.appendChild(formatInlineText(headingMatch[1]));
+            wrapper.appendChild(heading);
+            return;
+        }
+
+        if(bulletMatch || numberMatch){
+            flushParagraph();
+            const nextType = bulletMatch ? 'ul' : 'ol';
+
+            if(!list || listType !== nextType){
+                closeList();
+                list = document.createElement(nextType);
+                listType = nextType;
+            }
+
+            const li = document.createElement('li');
+            li.appendChild(formatInlineText((bulletMatch || numberMatch)[1]));
+            list.appendChild(li);
+            return;
+        }
+
+        closeList();
+        paragraph.push(line);
+    });
+
+    flushParagraph();
+    closeList();
+
+    return wrapper;
+}
+
+function getSuggestedReplies(text){
+    const lower = text.toLowerCase();
+
+    if(lower.includes('carrd') || lower.includes('landing page') || lower.includes('waitlist')){
+        return ['Write the copy', 'Use Carrd', 'Build it in code'];
+    }
+
+    if(lower.includes('3-node') || lower.includes('demo workflow') || lower.includes('first demo')){
+        return ['Support workflow', 'Sales workflow', 'You decide'];
+    }
+
+    if(lower.includes('customer') || lower.includes('users') || lower.includes('validate')){
+        return ['Make a list', 'Write outreach', 'Pick the niche'];
+    }
+
+    if(lower.includes('mvp') || lower.includes('scope') || lower.includes('launch faster')){
+        return ['Cut scope', 'Pick MVP', 'Make the plan'];
+    }
+
+    if(lower.includes('goal') || lower.includes('goals')){
+        return ['Show goals', 'Open Goals', 'Make it simpler'];
+    }
+
+    if(text.includes('?')){
+        if(lower.includes('which') || lower.includes('what')){
+            return ['You decide', 'Give me options', 'Keep it simple'];
+        }
+
+        if(lower.includes('when') || lower.includes('deadline')){
+            return ['Today', 'This week', 'No deadline yet'];
+        }
+
+        return ['You decide', 'Sounds good', 'Go deeper'];
+    }
+
+    return [];
+}
+
+function showSuggestions(options){
+    suggestions.innerHTML = '';
+
+    options.forEach(option => {
+        const button = document.createElement('button');
+        button.className = 'suggestion-btn';
+        button.type = 'button';
+        button.innerText = option;
+        button.onclick = () => {
+            messageInput.value = option;
+            suggestions.innerHTML = '';
+            sendMessage();
+        };
+        suggestions.appendChild(button);
+    });
+}
+
+function addMessage(text, type, tools = [], options = {}){
+    let visibleText = cleanChatText(text);
+    let isActivity = Boolean(options.activity);
+    let activityTitle = options.activityTitle || 'App update';
+    let activityText = options.activityText || visibleText;
+    let appCommand = null;
+
+    if(type === 'ai'){
+        const parsed = extractAppCommand(text);
+        visibleText = cleanChatText(parsed.displayText || 'I updated the goals board.');
+        if(parsed.command){
+            appCommand = parsed.command;
+            applyAppCommand(appCommand);
+            tools = tools.length ? tools : ['Goals'];
+            isActivity = true;
+            activityTitle = appCommand.action === 'goal_clear' ? 'Goals cleared' : 'Goals updated';
+            activityText = appCommand.action === 'goal_clear'
+                ? 'Cleared the Goals page.'
+                : 'Updated the Goals page.';
+        }
+    }
+
+    const hasVisibleChat = type !== 'ai' || !isActivity || (appCommand && visibleText && visibleText !== 'I updated the goals board.');
+
+    let visibleMessageEl = null;
+    if(hasVisibleChat){
+        visibleMessageEl = createMessage(visibleText, type, tools);
+        chatArea.appendChild(visibleMessageEl);
+    }
+
+    if(isActivity){
+        chatArea.appendChild(createActivityMessage(activityText, tools, activityTitle));
+    }
+
+    if(type === 'ai'){
+        if(hasVisibleChat){
+            showSuggestions(getSuggestedReplies(visibleText));
+            speakMessage(visibleMessageEl);
+        }
+    }else{
+        suggestions.innerHTML = '';
+    }
+    chatArea.scrollTop = chatArea.scrollHeight;
+}
+
+// Dynamic AI intro on load
+async function loadIntro(){
+    const card = document.createElement('div');
+    card.className = 'intro-card';
+    card.innerHTML = `
+        <div class="intro-tag"><span class="intro-tag-dot"></span>AI Cofounder</div>
+        <div class="intro-skeleton">
+            <div class="intro-skeleton-line medium"></div>
+            <div class="intro-skeleton-line"></div>
+            <div class="intro-skeleton-line short"></div>
+        </div>`;
+    chatArea.appendChild(card);
+    chatArea.scrollTop = chatArea.scrollHeight;
+
+    try{
+        const res = await fetch('/api/intro');
+        const data = await res.json();
+        const text = cleanIntroText(data.greeting || 'What are we building today?');
+
+        // Split on last sentence-ending question mark to separate intro + question
+        const qMatch = text.match(/^([\s\S]+?[.!])\s+([\s\S]+\?)\s*$/);
+        const intro  = qMatch ? qMatch[1].trim() : text.replace(/\*\*/g,'');
+        const question = qMatch ? qMatch[2].trim().replace(/\*\*/g,'') : '';
+
+        card.innerHTML = `
+            <div class="intro-tag"><span class="intro-tag-dot"></span>AI Cofounder</div>
+            <div class="intro-text">${intro.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')}</div>
+            ${question ? `<div class="intro-question">${question}</div>` : ''}
+        `;
+    }catch{
+        card.innerHTML = `
+            <div class="intro-tag"><span class="intro-tag-dot"></span>AI Cofounder</div>
+            <div class="intro-text">Let's build something worth building today.</div>
+            <div class="intro-question">What's the one thing that moves the needle right now?</div>
+        `;
+    }
+    chatArea.scrollTop = chatArea.scrollHeight;
+}
+
+function cleanIntroText(text){
+    return String(text || '')
+        .trim()
+        .replace(/^>\s*/gm, '')
+        .replace(/^["'“”‘’]+|["'“”‘’]+$/g, '')
+        .trim();
+}
+
+loadIntro();
+renderGoals();
+renderLaunchMap();
+
+function showTyping(){
+    const el = document.createElement('div');
+    el.className = 'message ai';
+    el.id = 'typingIndicator';
+    el.innerHTML = `<div class="message-inner"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
+    chatArea.appendChild(el);
+    chatArea.scrollTop = chatArea.scrollHeight;
+}
+
+function hideTyping(){
+    const el = document.getElementById('typingIndicator');
+    if(el) el.remove();
+}
+
+async function sendMessage(){
+    const input = messageInput;
+    const message = input.value.trim();
+    if(!message) return;
+
+    if(ttsEnabled && 'speechSynthesis' in window){
+        window.speechSynthesis.cancel();
+        clearSentenceHighlight();
+    }
+
+    addMessage(message, 'user');
+    input.value = '';
+    if(micEnabled){
+        resetMicDictationAfterSend();
+    }
+
+    if(handleLocalCommand(message)) return;
+
+    const contextPayload = getReplyContextPayload();
+    let enrichedMessage = message;
+    const ctxLines = [];
+    contextPayload.selectedMessages.forEach((t, i) => ctxLines.push(`Message ${i + 1}: ${t}`));
+    contextPayload.goalNodes.forEach((t, i) => ctxLines.push(`Goal Node ${i + 1}: ${t}`));
+    contextPayload.launchNodes.forEach((t, i) => ctxLines.push(`Launch Node ${i + 1}: ${t}`));
+    if(ctxLines.length){
+        enrichedMessage = `${message}\n\nSelected Context:\n${ctxLines.join('\n')}\n\nUse the selected context first when replying.`;
+    }
+
+    showTyping();
+    let aiText = null;
+    let aiTools = [];
+    let aiActivity = false;
+    let aiActivityTitle = 'App update';
+    try{
+        const response = await fetch('/chat', {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({message: enrichedMessage, goalsState})
+        });
+        const data = await response.json();
+        aiText = data.response;
+        aiTools = data.tools || [];
+        aiActivity = Boolean(data.activity);
+        aiActivityTitle = data.activityTitle || 'App update';
+    }catch(err){
+        console.error('Chat fetch error:', err);
+    }finally{
+        hideTyping();
+    }
+    // Render outside try/catch so rendering bugs never show the error message
+    addMessage(
+        aiText || 'I hit a connection issue. Try again in a sec.',
+        'ai',
+        aiTools || [],
+        {activity: aiActivity, activityTitle: aiActivityTitle}
+    );
+    clearReplyContext();
+}
+
+
+document.getElementById('messageInput').addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){
+        e.preventDefault();
+        if(!messageInput.value.trim() && ttsEnabled){
+            speakNextSentence();
+            return;
+        }
+        sendMessage();
+    }
+});
+
+// ── Memory tab ──
+function formatRelativeTime(isoString){
+    if(!isoString) return '';
+    try{
+        const d = new Date(isoString);
+        const diff = Date.now() - d.getTime();
+        const mins = Math.floor(diff / 60000);
+        if(mins < 1) return 'just now';
+        if(mins < 60) return `${mins}m ago`;
+        const hrs = Math.floor(mins / 60);
+        if(hrs < 24) return `${hrs}h ago`;
+        return d.toLocaleDateString([], {month:'short', day:'numeric'});
+    }catch{ return ''; }
+}
+
+async function loadMemory(){
+    const btn        = document.getElementById('memRefreshBtn');
+    const storyEl   = document.getElementById('memStory');
+    const factsEl   = document.getElementById('memFacts');
+    const convoEl   = document.getElementById('memConvo');
+    const badgeEl   = document.getElementById('memBadge');
+    const msgCount  = document.getElementById('memMsgCount');
+    const storyLen  = document.getElementById('memStoryLen');
+
+    btn.classList.add('spinning');
+
+    try{
+        const res = await fetch('/api/memory');
+        const data = await res.json();
+
+        // Stats
+        badgeEl.textContent = data.memories.length;
+        msgCount.textContent = data.recent.length;
+        storyLen.textContent = data.story ? data.story.split(/\s+/).length + ' words' : '—';
+
+        // Story
+        storyEl.innerHTML = '';
+        if(data.story){
+            storyEl.textContent = data.story;
+        }else{
+            const empty = document.createElement('span');
+            empty.className = 'mem-story-empty';
+            empty.textContent = 'No story yet — start chatting and I\'ll build a picture of your journey.';
+            storyEl.appendChild(empty);
+        }
+
+        // Facts
+        factsEl.innerHTML = '';
+        if(data.memories.length === 0){
+            const empty = document.createElement('div');
+            empty.className = 'mem-empty';
+            empty.textContent = 'No facts saved yet. As we talk, I\'ll remember what matters.';
+            factsEl.appendChild(empty);
+        }else{
+            data.memories.forEach((mem, i) => {
+                const row = document.createElement('div');
+                row.className = 'mem-fact';
+                row.style.animationDelay = `${i * 0.04}s`;
+
+                const icon = document.createElement('div');
+                icon.className = 'mem-fact-icon';
+                icon.innerHTML = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><line x1="8" y1="5" x2="8" y2="8"/><circle cx="8" cy="11" r="0.5" fill="currentColor"/></svg>`;
+
+                const body = document.createElement('div');
+                body.className = 'mem-fact-body';
+
+                const txt = document.createElement('div');
+                txt.className = 'mem-fact-text';
+                txt.textContent = mem.text;
+
+                const meta = document.createElement('div');
+                meta.className = 'mem-fact-meta';
+                meta.textContent = formatRelativeTime(mem.created_at);
+
+                body.appendChild(txt);
+                body.appendChild(meta);
+
+                const delBtn = document.createElement('button');
+                delBtn.className = 'mem-fact-del';
+                delBtn.title = 'Forget this';
+                delBtn.innerHTML = `<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="2" y1="2" x2="10" y2="10"/><line x1="10" y1="2" x2="2" y2="10"/></svg>`;
+                delBtn.onclick = async () => {
+                    await fetch('/api/memory/delete', {
+                        method:'POST',
+                        headers:{'Content-Type':'application/json'},
+                        body:JSON.stringify({text: mem.text})
+                    });
+                    row.style.transition = 'opacity 0.2s, transform 0.2s';
+                    row.style.opacity = '0';
+                    row.style.transform = 'translateX(8px)';
+                    setTimeout(() => {
+                        row.remove();
+                        badgeEl.textContent = Math.max(0, parseInt(badgeEl.textContent) - 1);
+                    }, 200);
+                };
+
+                row.appendChild(icon);
+                row.appendChild(body);
+                row.appendChild(delBtn);
+                factsEl.appendChild(row);
+            });
+        }
+
+        // Conversation
+        convoEl.innerHTML = '';
+        if(data.recent.length === 0){
+            const empty = document.createElement('div');
+            empty.className = 'mem-empty';
+            empty.textContent = 'No recent messages yet.';
+            convoEl.appendChild(empty);
+        }else{
+            data.recent.forEach((msg, i) => {
+                const wrap = document.createElement('div');
+                wrap.className = `mem-msg ${msg.role === 'user' ? 'user' : 'ai'}`;
+                wrap.style.animationDelay = `${i * 0.03}s`;
+
+                const bubble = document.createElement('div');
+                bubble.className = 'mem-msg-bubble';
+                bubble.textContent = msg.content.length > 160 ? msg.content.slice(0, 160) + '…' : msg.content;
+
+                const time = document.createElement('div');
+                time.className = 'mem-msg-time';
+                time.textContent = formatRelativeTime(msg.created_at);
+
+                wrap.appendChild(bubble);
+                wrap.appendChild(time);
+                convoEl.appendChild(wrap);
+            });
+        }
+    }catch(e){
+        storyEl.innerHTML = '<span class="mem-story-empty">Could not load memory.</span>';
+    }finally{
+        setTimeout(() => btn.classList.remove('spinning'), 650);
+    }
+}
+
+// ── TTS ──
+let ttsEnabled = false;
+let currentSentence = null;
+let currentMessageSentences = [];
+let currentSentenceIndex = -1;
+
+function getBestFemaleVoice(){
+    const voices = window.speechSynthesis.getVoices();
+    if(!voices.length) return null;
+
+    const preferredNames = [
+        'Microsoft Jenny', 'Microsoft Aria', 'Microsoft Ava', 'Microsoft Emma',
+        'Google US English', 'Google UK English Female',
+        'Samantha', 'Karen', 'Moira', 'Serena', 'Victoria', 'Tessa',
+        'Microsoft Zira'
+    ];
+
+    function scoreVoice(voice){
+        const name = voice.name.toLowerCase();
+        const lang = (voice.lang || '').toLowerCase();
+        let score = 0;
+
+        if(lang.startsWith('en')) score += 20;
+        if(lang === 'en-us') score += 8;
+        if(name.includes('natural')) score += 35;
+        if(name.includes('online')) score += 25;
+        if(name.includes('neural')) score += 25;
+        if(name.includes('microsoft')) score += 12;
+        if(name.includes('google')) score += 10;
+        if(name.includes('jenny') || name.includes('aria') || name.includes('ava') || name.includes('emma')) score += 18;
+
+        const preferredIndex = preferredNames.findIndex(preferred => name.includes(preferred.toLowerCase()));
+        if(preferredIndex !== -1) score += 50 - preferredIndex;
+        if(voice.default) score += 3;
+
+        return score;
+    }
+
+    return [...voices]
+        .filter(voice => (voice.lang || '').toLowerCase().startsWith('en'))
+        .sort((a, b) => scoreVoice(b) - scoreVoice(a))[0]
+        || voices[0];
+}
+
+function tuneUtterance(utter){
+    const voiceName = (utter.voice?.name || '').toLowerCase();
+    const isNaturalVoice = voiceName.includes('natural') || voiceName.includes('online') || voiceName.includes('neural');
+
+    utter.pitch = isNaturalVoice ? 1.0 : 1.08;
+    utter.rate = isNaturalVoice ? 0.94 : 0.88;
+    utter.volume = 1;
+}
+
+function cleanForSpeech(text){
+    return String(text || '')
+        .replace(/\[→\s*[^\]]+\]/g, '')      // strip nav chips
+        .replace(/\*\*([^*]+)\*\*/g, '$1')    // strip bold
+        .replace(/`([^`]+)`/g, '$1')          // strip code
+        .replace(/^#{1,3}\s+/gm, '')          // strip headings
+        .replace(/^[-*]\s+/gm, '')            // strip bullets
+        .replace(/^\d+[.)]\s+/gm, '')         // strip numbered lists
+        .replace(/\n{2,}/g, '. ')             // paragraph breaks → pause
+        .replace(/\n/g, ' ')
+        .trim();
+}
+
+function toggleTTS(){
+    ttsEnabled = !ttsEnabled;
+    const btn = document.getElementById('ttsToggle');
+    btn.classList.toggle('active', ttsEnabled);
+    btn.title = ttsEnabled ? 'Voice on — click to mute' : 'Toggle voice';
+    if(!ttsEnabled){
+        window.speechSynthesis.cancel();
+        btn.classList.remove('speaking');
+        clearSentenceHighlight();
+    }
+}
+
+function splitIntoSentences(text){
+    return cleanForSpeech(text)
+        .match(/[^.!?]+[.!?]+|[^.!?]+$/g)
+        ?.map(part => part.trim())
+        .filter(Boolean) || [];
+}
+
+function prepareReadableText(textEl){
+    if(!textEl) return;
+    const blocks = textEl.querySelectorAll('p, li, h3');
+    const targets = blocks.length ? [...blocks] : [textEl];
+
+    targets.forEach(block => {
+        if(block.querySelector('.nav-chip')) return;
+        const sentences = splitIntoSentences(block.innerText || block.textContent || '');
+        if(!sentences.length) return;
+
+        block.innerHTML = '';
+        sentences.forEach((sentence, index) => {
+            const span = document.createElement('span');
+            span.className = 'tts-sentence';
+            span.tabIndex = 0;
+            span.dataset.ttsText = sentence;
+            span.textContent = sentence;
+            span.onclick = (event) => {
+                event.stopPropagation();
+                if(ttsEnabled) speakFromSentence(span);
+            };
+            block.appendChild(span);
+            if(index < sentences.length - 1){
+                block.appendChild(document.createTextNode(' '));
+            }
+        });
+    });
+}
+
+function clearSentenceHighlight(){
+    if(currentSentence){
+        currentSentence.classList.remove('reading');
+        currentSentence = null;
+    }
+}
+
+function setCurrentSentence(span){
+    clearSentenceHighlight();
+    currentSentence = span;
+    if(currentSentence){
+        currentSentence.classList.add('reading');
+        currentSentence.scrollIntoView({block:'nearest', behavior:'smooth'});
+    }
+}
+
+function speakSentence(span){
+    if(!ttsEnabled || !span || !('speechSynthesis' in window)) return;
+    const clean = cleanForSpeech(span.dataset.ttsText || span.innerText);
+    if(!clean) return;
+
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(clean);
+    const voice = getBestFemaleVoice();
+    if(voice) utter.voice = voice;
+
+    tuneUtterance(utter);
+
+    const btn = document.getElementById('ttsToggle');
+    utter.onstart = () => {
+        btn && btn.classList.add('speaking');
+        setCurrentSentence(span);
+    };
+    utter.onend = () => btn && btn.classList.remove('speaking');
+    utter.onerror = () => btn && btn.classList.remove('speaking');
+
+    window.speechSynthesis.speak(utter);
+}
+
+function speakFromSentence(span){
+    const message = span.closest('.message');
+    currentMessageSentences = message ? [...message.querySelectorAll('.tts-sentence')] : [span];
+    currentSentenceIndex = Math.max(0, currentMessageSentences.indexOf(span));
+    speakSentence(span);
+}
+
+function speakNextSentence(){
+    if(!ttsEnabled) return;
+    if(!currentMessageSentences.length && currentSentence){
+        const message = currentSentence.closest('.message');
+        currentMessageSentences = message ? [...message.querySelectorAll('.tts-sentence')] : [];
+        currentSentenceIndex = currentMessageSentences.indexOf(currentSentence);
+    }
+
+    const next = currentMessageSentences[currentSentenceIndex + 1];
+    if(next){
+        currentSentenceIndex += 1;
+        speakSentence(next);
+    }else{
+        clearSentenceHighlight();
+    }
+}
+
+function speakMessage(messageEl){
+    if(!ttsEnabled || !messageEl) return;
+    const firstSentence = messageEl.querySelector('.tts-sentence');
+    if(firstSentence) speakFromSentence(firstSentence);
+}
+
+document.addEventListener('keydown', (event) => {
+    if(event.key !== 'Enter' || !ttsEnabled) return;
+    if(document.activeElement && document.activeElement.id === 'messageInput') return;
+    event.preventDefault();
+    speakNextSentence();
+});
+
+// ── Speech to text ──
+let micEnabled = false;
+let dictationBase = '';
+let recognition = null;
+let recognitionActive = false;
+let micRestartTimer = null;
+let resettingMicAfterSend = false;
+
+function getSpeechRecognition(){
+    const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if(!Recognition) return null;
+
+    if(recognition) return recognition;
+
+    recognition = new Recognition();
+    recognition.lang = 'en-US';
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => {
+        recognitionActive = true;
+        const btn = document.getElementById('micToggle');
+        btn && btn.classList.add('active', 'listening');
+    };
+
+    recognition.onresult = (event) => {
+        let finalText = '';
+        let interimText = '';
+
+        for(let i = event.resultIndex; i < event.results.length; i++){
+            const transcript = event.results[i][0].transcript.trim();
+            if(event.results[i].isFinal){
+                finalText += transcript + ' ';
+            }else{
+                interimText += transcript + ' ';
+            }
+        }
+
+        if(finalText){
+            dictationBase = `${dictationBase} ${finalText}`.replace(/\s+/g, ' ').trim();
+        }
+
+        messageInput.value = `${dictationBase} ${interimText}`.replace(/\s+/g, ' ').trim();
+        messageInput.focus();
+    };
+
+    recognition.onend = () => {
+        recognitionActive = false;
+        const btn = document.getElementById('micToggle');
+        btn && btn.classList.remove('listening');
+
+        if(micEnabled){
+            clearTimeout(micRestartTimer);
+            const delay = resettingMicAfterSend ? 80 : 200;
+            resettingMicAfterSend = false;
+            micRestartTimer = setTimeout(() => startRecognition(), delay);
+        }
+    };
+
+    recognition.onerror = (event) => {
+        recognitionActive = false;
+        if(event.error === 'not-allowed' || event.error === 'service-not-allowed'){
+            stopMic('Mic permission blocked.');
+        }
+    };
+
+    return recognition;
+}
+
+function startRecognition(){
+    const rec = getSpeechRecognition();
+    if(!rec || !micEnabled || recognitionActive) return;
+
+    try{
+        rec.start();
+    }catch{}
+}
+
+function resetMicDictationAfterSend(){
+    dictationBase = '';
+    messageInput.value = '';
+    messageInput.placeholder = 'Listening... speak your next message';
+
+    if(recognition && recognitionActive){
+        resettingMicAfterSend = true;
+        try{
+            recognition.abort();
+        }catch{
+            resettingMicAfterSend = false;
+        }
+    }
+}
+
+function startMic(){
+    const rec = getSpeechRecognition();
+    const btn = document.getElementById('micToggle');
+
+    if(!rec){
+        messageInput.placeholder = 'Mic is not supported in this browser.';
+        return;
+    }
+
+    dictationBase = messageInput.value.trim();
+    micEnabled = true;
+    btn.classList.add('active', 'listening');
+    btn.title = 'Listening - click to stop';
+    messageInput.placeholder = 'Listening... speak your message';
+    messageInput.focus();
+
+    startRecognition();
+}
+
+function stopMic(reason = ''){
+    const btn = document.getElementById('micToggle');
+    micEnabled = false;
+    recognitionActive = false;
+    clearTimeout(micRestartTimer);
+    btn.classList.remove('active', 'listening');
+    btn.title = 'Dictate message';
+    messageInput.placeholder = reason || 'Talk to your AI cofounder...';
+
+    if(recognition){
+        try{
+            recognition.abort();
+        }catch{}
+    }
+}
+
+function toggleMic(){
+    if(micEnabled){
+        stopMic();
+    }else{
+        startMic();
+    }
+}
+
+// Preload voices on browsers that need it
+if('speechSynthesis' in window){
+    window.speechSynthesis.getVoices();
+    window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+}
+
+// ── Copy helper ──
+async function copyText(text){
+    if(navigator.clipboard){
+        await navigator.clipboard.writeText(text);
+    }else{
+        const temp = document.createElement('textarea');
+        temp.value = text;
+        document.body.appendChild(temp);
+        temp.select();
+        document.execCommand('copy');
+        temp.remove();
+    }
+}
+
+// ── Remove message helper ──
+function removeMessage(msgEl){
+    msgEl.style.transition = 'opacity 0.18s, transform 0.18s';
+    msgEl.style.opacity = '0';
+    msgEl.style.transform = 'scale(0.97)';
+    setTimeout(() => {
+        msgEl.remove();
+        updateSelectionToolbar();
+    }, 180);
+}
+
+// ── Selection system ──
+const selectionToolbar = document.getElementById('selectionToolbar');
+const selCount = document.getElementById('selCount');
+
+function getSelected(){
+    return [...chatArea.querySelectorAll('.message.selected')];
+}
+
+function toggleSelectMessage(msgEl){
+    msgEl.classList.toggle('selected');
+    updateSelectionToolbar();
+    updateReplyContextBar();
+}
+
+function updateSelectionToolbar(){
+    const selected = getSelected();
+    if(selected.length > 0){
+        selCount.textContent = `${selected.length} selected`;
+        selectionToolbar.classList.add('visible');
+    }else{
+        selectionToolbar.classList.remove('visible');
+    }
+}
+
+function clearSelection(){
+    getSelected().forEach(el => el.classList.remove('selected'));
+    selectionToolbar.classList.remove('visible');
+    updateReplyContextBar();
+}
+
+function selectAll(){
+    chatArea.querySelectorAll('.message').forEach(el => el.classList.add('selected'));
+    updateSelectionToolbar();
+    updateReplyContextBar();
+}
+
+async function copySelected(){
+    const texts = getSelected().map(el => {
+        const textEl = el.querySelector('.message-text');
+        return textEl ? textEl.innerText.trim() : '';
+    }).filter(Boolean);
+    await copyText(texts.join('\n\n'));
+
+    // Flash feedback
+    const origText = document.getElementById('selCopyBtn').querySelector('span').textContent;
+    document.getElementById('selCopyBtn').querySelector('span').textContent = 'Copied!';
+    setTimeout(() => {
+        document.getElementById('selCopyBtn').querySelector('span').textContent = origText;
+    }, 1200);
+}
+
+function deleteSelected(){
+    getSelected().forEach(el => removeMessage(el));
+    selectionToolbar.classList.remove('visible');
+}
+</script>
+
+<!-- Selection toolbar -->
+<div class="selection-toolbar" id="selectionToolbar">
+    <span class="sel-count" id="selCount">0 selected</span>
+    <button class="sel-btn" onclick="selectAll()">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="14" height="14" rx="2"/><polyline points="4,8 7,11 12,5"/></svg>
+        <span>Select All</span>
+    </button>
+    <button class="sel-btn" id="selCopyBtn" onclick="copySelected()">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="9" height="11" rx="2"/><path d="M4 4V3a1 1 0 0 1 1-1h7a2 2 0 0 1 2 2v9a1 1 0 0 1-1 1h-1"/></svg>
+        <span>Copy</span>
+    </button>
+    <button class="sel-btn sel-btn-danger" onclick="deleteSelected()">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,4 14,4"/><path d="M5 4V2h6v2"/><rect x="3" y="4" width="10" height="10" rx="1.5"/><line x1="6" y1="7" x2="6" y2="11"/><line x1="10" y1="7" x2="10" y2="11"/></svg>
+        <span>Delete</span>
+    </button>
+    <button class="sel-btn-close" title="Clear selection" onclick="clearSelection()">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="4" x2="12" y2="12"/><line x1="12" y1="4" x2="4" y2="12"/></svg>
+    </button>
+</div>
+
+</body>
+</html>
